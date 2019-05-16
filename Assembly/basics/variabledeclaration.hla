@@ -1,0 +1,44 @@
+// declare variables in high level assembly
+
+program vardec;
+#include("stdlib.hhf")
+
+// the declaration follows pascal in it's declaration format
+
+static
+	varint1: int8 := 8; 		// 8_int
+	varint2: int16; 		// 16_int
+	varint3: int32 := 320000; 	// 32_int
+	varf: boolean := false; 	// bool
+	vart: boolean := true; 		// bool
+	varchar1: char := 'A'; 		// char
+
+// the static is the keyword that begins the variable declaration section
+// the declaration follows the type " <name>: <datatype> [ := <value> ] ; "
+// the operand after the assignment operator has to be a constant and must be compatible with the variable type
+// you CANNOT assign assign the values of other variable in the 'static' section
+// you CANNOT declare multiple variables in the same line as well
+
+begin vardec;
+
+stdout.put(" variable 1 : ",varint1,nl);
+stdout.put(" variable 3 : ",varint3,nl);
+stdout.put(" enter a 2byte integer : ");
+stdin.get(varint2);
+stdout.put(" you entered : ", varint2);
+
+end vardec;
+
+// BOOLEAN
+
+// hla treats 'true' as '1' and false as '0'
+// use type 'boolean' to declare a variable
+// hla uses 1byte to store boolean values so you can use the 80x86 - and or xor not - ops
+// you CANNOT read boolean variables through 'stdin'
+
+// CHAR
+
+// use type 'char' to declare a variable
+// assign by surrounding the charcter value in single quotes
+
+

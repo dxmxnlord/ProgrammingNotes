@@ -1,0 +1,293 @@
+--- Introduction to intel 80x86 cpus ---
+
+[ REGISTERS ]
+
++ There are 4 types of registers
+
+1. general purpose registers 
+
+	- there are 8 32bit registers : 
+	
+		EAX
+		EBX
+		ECX
+		EDX
+		ESI
+		EDI
+		EBP - BASE POINTER
+		ESP - STACK POINTER
+
+	- the 'E' stands for 'extended' 
+
+	- there are 8 16bit registers overlayed in the 32bit ones :
+
+		AX
+		BX
+		CX
+		DX
+		SI
+		DI
+		BP
+		SP
+	- there are 8 8bit registers overlayed in the 16bitones :
+
+		AL
+		AH
+		BL
+		BH
+		CL
+		CH
+		DL
+		DH
+ 
+	- modification of one register modifies the others within it. for example changing the EAX may change the AX AL AH registers
+
+2. special-purpose application-accessible registers : 
+
+3. segment registers
+
+	- these are not used much in 32 bit operating systems
+
+4. special-pupose kernel-mode registers
+
+	- used for creating OS, debuggers, and other system level tools
+
++ there is a separate register to check for flags called EFLAGS register (32bit) that storesseveral single bit (boolean) values. Most of the bits are reserved for the kernel-mode or of little use to a programmer except 8bits. They are :
+
+	11. overflow
+	10. direction
+	9. interrupt disable
+	7. sign
+	6. zero
+	4. auxillary carry
+	2. parity
+	0. carry
+
+	( bit number from lower 16bits of EFLAGS )
+
++ { CONDITION CODES } = overflow, carry, sign, zero 
+	
+	- they are the most important flags
+
++ almost all calculations on the 80x86 CPU involve a register
+
++ Another thing you should be aware of is that although the registers have the name “general purpose,” you should not infer that you can use any register for any purpose
+ 	
+ 	- the ESP and EBP have specific functions and should be avoided for calculations
+
+
+[ THE MEMORY SUBSYSTEM ]
+
++ A typical 80x86 processor running a modern 32-bit OS can access a maximum of 2 32 different memory locations, or just over 4 billion bytes
+
++ Think of memory as a linear array of bytes. The address of the first byte is 0 and the address of the last byte is (2^32 −1)
+
+	- To execute the equivalent of the Pascal statement Memory [125] := 0; the CPU places the value 0 on the data bus, places the address 125 on the address bus
+	- To execute the equivalent of CPU := Memory [125]; the CPU places the address 125 on the address bus, asserts the read line (because the CPU is reading data from memory), and then reads the resulting data from the data bus
+	- to store larger values, the 80x86 uses a sequence of consecutive memory locations
+	- Modern 80x86 processors don’t actually connect directly to memory. Instead, there is a special memory buffer on the CPU known as the cache that acts as a high-speed intermediary between the CPU and main memory
+	- accessing data objects in memory is sometimes more efficient if the address of the object is an even multiple of the object’s size.
+	- HLA automatically assigns variables numeric addresses for you
+
+[ BASIC MACHINE OPERTIONS ]
+
+1. mov ( source_operand, destination_operand );
+
+	- moves data from one location to another 
+	- the source_operand can be a register, a memory variable, or a constant
+	- the destination_operand can be a register or a memory variable
+	- both operands must be of the same size
+	- you CANNOT move data from one memory variable to another
+	- equivalent to " destination_operand = source_operand ; "
+	- These are the possible combinations: 
+	
+		Source		Destination
+		---------       ---------------
+
+		Reg 8			 Reg 8
+		Reg 8			 Mem 8
+		Mem 8		 Reg 8
+		Constant		 Reg 8
+		Constant		 Mem 8
+		Reg 16			 Reg 16
+		Reg 16			 Mem 16
+		Mem 16		 Reg 16
+		Constant		 Reg 16
+		Constant		 Mem 16
+		Reg 32			 Reg 32
+		Reg 32			 Mem 32
+		Mem 32		 Reg 32
+		Constant		 Reg 32
+		Constant		 Mem 32
+
+2. add/sub (source_operand, destination_operand);
+
+	- equivalent to "destination_operand = destination_operand +/- source_operand ;"
+	- no memory to memory either
+
+( / example program / - introto80x86cpu1.hla )
+
+
+[ CONTROL STATEMENTS ]
+
+/ Boolean Expressions /
+
+	- flag_specification
+	- !flag_specification
+	- register
+	- !register
+	- Boolean_variable
+	- !Boolean_variable
+	- mem_reg relop mem_reg_const
+	- register in LowConst..HiConst
+	- register not in LowConst..HiConst
+
++ a flag_specification may be :
+
+	@c 		Carry 		True if the carry is set (1); false if the carry is clear (0).
+	@nc 	No carry 	True if the carry is clear (0); false if the carry is set (1).
+	@z 		Zero 		True if the zero flag is set; false if it is clear.
+	@nz 	Not zero 	True if the zero flag is clear; false if it is set.
+	@o 		Overflow 	True if the overflow flag is set; false if it is clear.
+	@no 	No overflow True if the overflow flag is clear; false if it is set.
+	@s 		Sign 		True if the sign flag is set; false if it is clear.
+	@ns 	No sign 	True if the sign flag is clear; false if it is set.
+
++ the register operand can be any of the 8-bit, 16-bit, or 32-bit general-purpose registers. The expression evaluates false if the register contains a zero; it evaluates true if the register contains a nonzero value
+
++ the boolean variable has to have the type boolean and evaluates to true or false
+
++ the boolean expressions used are : = or == , <> or != , < , > , <= , >= 
+
+	- the left operand is a memory variable / register 
+	- the right operand is a variable / register / value
+	- both operands CANNOT be variables 
+	- if the left operand is a register and the right operand is a positive constant or another register, HLA uses an unsigned comparison
+
++ the 'in' and 'not in' expression lets you test a register to see if it is within a specified range. For example, the expression eax in 2000..2099 evaluates true if the value in the EAX register is between 2,000 and 2,099 (inclusive)
+
+/ if statements /
+
++ the if block takes the form :
+
+	if ( expression ) then
+
+	<< statements >>
+
+	elseif ( expression ) then
+
+	<< statements >>
+
+	else
+
+	<< statements >>
+
+	endif;
+
++ the expressions can use the :
+
+	- logical and : &&
+	- logical or : 	||
+	- logical not : !
+
++ HLA uses short-circuit evaluation. If the left operation evaluates false, it stops
+
+/ loops /
+
++ control statements are :
+
+	- break;
+	- breakif ( expression );
+	- continue;
+	- continueif ( expression );
+
++  the while block takes the form :
+	
+	while ( expression ) do
+
+	<< statements >>
+
+	endwhile;
+
++ the for block takes the form : 
+
+	for ( inital statement ; termination conditional expression ; post block-execution statement ) do
+
+	<< statements >>
+
+	endfor;
+
+	- the inital/post statement can be any single HLA instruction. Generally this intializes a reg/memvar.
+
++ the repeat-untill block takes the form : 
+
+	repeat
+
+	<< statements >>
+
+	untill ( expressions );
+
++ the forever-endfor block takes the form : 
+
+	forever
+
+	<< statements >>
+	<< break / continue >>
+
+	endfor;
+
+/ exception handling /
+
++ the try-exception-endtry block takes the form : 
+
+	try
+
+	<< statements >>
+
+	exception ( exceptionID )
+
+	<< statements >>
+
+	exception ( exceptionID2 )
+
+	<< statements 2 >>  
+
+	endtry;
+
++ Each exception has an unsigned integer constant associated with it, known as the exception ID.
+
++ The "excepts.hhf" header file in the HLA Standard Library predefines several exception IDs
+
++ The try block raises an error and immediately transfers control to the exception block skipping the other commands in the try block
+
+ex.StringOverflow			-	Attempt to store a string that is too large into a string variable.
+ex.StringIndexError		-	Attempt to access a character that is not present in a string.
+
+[ INTRO TO THE HLA STANDARD LIBRARY ]
+
+/ predefined constants /
+
++ the HLA-SL has some predefined constants in the stdio namespace : 
+
+	stdio.bell		ASCII bell
+	stdio.bs 			ASCII backspace
+	stdio.tab			ASCII tab
+	stdio.lf 			ASCII linefeed
+	stdio.cr 			ASCII carriage return
+	nl 					newline feed ( present in global namespace)
+
+/ standard in and standard out /
+
++ the '<' operator can direct a external file as input for a HLA program
++ the '>' operator can direct the output of an HLA program to an external file
+	
+	ex. 		testprogram < inputdata.dat > output.txt
+
+/ put a newline /
+
++ instead of the nl constant you can use : 
+
+	stdout.newln();
+
+/ stdout.putiX routines /
+

@@ -108,6 +108,37 @@ imglist=[]
 imglist.append(cv2.threshold(img,127,255,cv2.THRESH_BINARY)[1])
 imglist.append(cv2.threshold(img,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)[1])
 for image in imglist:
-    cv2.imshow('img',image)
+    cv2.imshow('img',image)`
     cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    cv2.destroyAllWindows() 
+
+### NOTES FROM 
+
+"""
+
+T - threshold
+M - max value
+
+CV_THRESH_BINARY                  dst i = ( src i > T ) ? M :0
+CV_THRESH_BINARY_INV         dst i = ( src i > T ) ? 0: M
+CV_THRESH_TRUNC                   dst i = ( src i > T ) ? M :src i
+CV_THRESH_TOZERO_INV        dst i = ( src i > T ) ? 0:src i
+CV_THRESH_TOZERO                 dst i = ( src i > T ) ? src i :0
+
+"""
+
+# INRANGE FUNCTION
+
+""" 
+
+Another way to create binary images is using the inrange fucntion. It only keeps pixels
+in a certain range. 
+
+cv2.inRange(img,lower,upper) will threshold grayscale images and create a binary image
+
+"""
+
+inrange=cv2.inRange(img,50,100)
+cv2.imshow('img',inrange)`
+cv2.waitKey(0)
+cv2.destroyAllWindows() 

@@ -136,3 +136,80 @@ cv2.imshow('img',bhimg)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
+### NOTES FROM Gary Bradsky - Adrian Kaehler
+
+"""
+
+Dilation is when you convolve some image with a kernel of any shape and size and an
+anchor point(usually centre). The maximum value of in the kernel replaces the pixel
+at the anchor. This causes bright regions to grow and dark to shrink. It is mostly
+used with binary images after thresholding.
+
+Erosion is the almost the same as dilation except it takes the minimum pixel value.
+
+In general, whereas dilation expands region A, erosion reduces region A. Moreover, di-
+lation will tend to smooth concavities and erosion will tend to smooth away protrusions.
+Of course, the exact result will depend on the kernel, but these statements are generally
+true for the fi lled convex kernels typically used. 
+
+The erode operation is often used to eliminate “speckle” noise in an image.
+The idea here is that the speckles are eroded to nothing while larger regions
+that contain visually significant content are not affected. The dilate
+operation is often used when attempting to find connected components (i.e.,
+large discrete regions of similar pixel color or intensity). The utility of
+dilation arises because in many cases a large region might otherwise be broken
+apart into multiple components as a result of noise, shadows, or some other
+similar effect. A small dilation will cause such components to “melt”
+together into one.
+
+These two are well-suited for binary images/masks but grayscale/color can use additional
+operations. 
+
+Opening is erosion followed by dilation. Opening is often used to separate closely
+spaced identfiable parts of a binary image.
+
+Closing is dilation followed by erosion. For connected components, usually an
+erosion or closing operation is performed first to eliminate elements that
+arise purely from noise and then an opening operation is used to connect
+nearby large regions.
+
+Although the end result of using open or close is similar to
+using erode or dilate, these new operations tend to preserve the area of
+connected regions more accurately. 
+
+Both the opening and closing operations are approximately area-preserving: the
+most prominent effect of closing is to eliminate lone outliers that are lower
+than their neighbors whereas the effect of opening is to eliminate lone
+outliers that are higher than their neighbors.
+
+Ex.
+
+	200	100	250	240	230	150 --> original intensities
+
+Opening:
+
+	100	100	100	240	150	150 --> erode (minimum intensity in kernel but here adjacent-to)
+
+	100	100	240	240	240	150 --> dilate = opening
+
+Closing: 
+
+	200	250	250	250	240	230 --> dilate (max intensity bw left and right selected)
+
+	200	200	250	240	230	230 --> erode = closing 
+
+n iterations perform n dilations/erosions then 'n' erosions/dilations not alternatively.
+
+The gradient is [ dilate - erode ] operation. It isolates perimeters of bright
+regions. The complete perimeter of a region tends to be found because an
+expanded version is subtracted from a contracted version of the region,
+leaving a complete perimeter edge. 
+
+The tophat is [ src - open ] operation. Whereas blackhat is [ close - src ]
+operation. Tophat reveals areas that are lighter than the surrounding region.
+The  bright local peaks are isolated. By isolated I mean that they exist in
+the resultant image. Blackhat reveals areas that are darker than the 
+surrounding region. The dark holes are isolated and are shown in the resultant
+image. The rest of the image is empty. 
+
+"""

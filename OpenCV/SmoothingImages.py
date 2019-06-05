@@ -222,5 +222,13 @@ cv.Smooth(src, dst, smoothtype=<type>, param1=3, param2=0, param3=0, param4=0)
 		the larger the second parameter, the broader is the range of intensities that is 
 		included in the smoothing.
 
-		""" 
+The src and dst images should be the same size. One might think that the src image
+should be larger than the dst image in order to allow for the extra width and length
+of the convolution kernel. But the sizes of the src and dst can be the same in OpenCV
+because, by default, prior to convolution OpenCV creates virtual pixels via replication
+past the border of the src image so that the border pixels in dst can be filled in. The rep-
+lication is done as input(–dx, y) = input(0, y), input(w + dx, y) = input(w – 1, y), and so
+forth.
+
+"""
 

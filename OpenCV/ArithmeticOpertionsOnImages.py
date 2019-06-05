@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 os.chdir("/home/rishikesh/Desktop/101_ObjectCategories")
 os.chdir("./airplanes")
 
-# IMAGE ADDITION
+# IMAGE ADDITION/SUBTRACTION
 
 """
 
@@ -17,6 +17,8 @@ second image can just be a scalar value.
 
 There is a difference between OpenCV addition and Numpy addition. OpenCV
 addition is a saturated operation while Numpy addition is a modulo operation.
+
+uses cv2.add(img1,img2) and cv2.subtract(img1,img2)
 
 """
 

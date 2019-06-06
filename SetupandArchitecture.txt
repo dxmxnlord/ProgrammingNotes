@@ -1,0 +1,51 @@
+
++ The entire website is divided into apps which are like modules and can even be standalone websites 
+
+* To start a project :
+
+	$ django-admin startproject <pname>
+
+	- This creates a folder with the project directory and a manage.py file
+	- The folder has [ init , settings , urls , wsgi]
+	- init tells python to treat your project like a package 
+	- the settings file has a section called installed apps which needs to be updated every time you want 
+	  to include an app.
+	- urls is the main controller of the website and points to the various apps 
+	- The manage.py has a bunch of commands that perform different tasks
+
++ To activate the server :
+
+	$ python3 manage.py runserver
+
+	- This runs the server at port 8000 on your local IP
+
++ Create an App :
+
+	$ python3 manage.py startapp  <appname>
+
+	- Creates an app folder and a database file.
+	- The folder has another folder called migrations and files [ init admin apps model tests views]
+	- urls control what is served based on url patterns 
+	- models contains database info and metadata 
+	- tests let you test you write code to test your site after making a change before releasing it
+	- views lets you create views which essentially is what your user will see 
+
+	++ Add the app to your settings.py in the installed_apps list
+
+--- Architecture ---
+
+[ Website ]
+
+	[ App1 ]
+
+		urls
+		models
+		views
+
+	[ App2 ]
+
+		urls
+		models
+		views
+
+https://www.youtube.com/watch?v=iZ5my3krEVM&list=PLQVvvaa0QuDeA05ZouE4OzDYLHY-XH-Nd&index=2

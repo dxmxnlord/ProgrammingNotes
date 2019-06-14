@@ -1,0 +1,350 @@
+-- django models notes from official documentation --
+
+# MODELS { contd at line 314 }
+
++ Each model is a Python class that subclasses django.db.models.Model. A class is like a table.
++ Each attribute of the model represents a database field.
+
++ to make a table ex. :
+
+[[
+	from django.db import models
+
+	class Person(models.Model):
+	    first_name = models.CharField(max_length=30)
+	    last_name = models.CharField(max_length=30) 
+
+	% the names are like table columns and the Fields are different datatypes %
+	% the Fields also take constraints %
+
+]]
+
+# ABSTRACT MODELS 
+
++ Abstract base classes are useful when you want to put some common information into a number of other models. You write your base class and put abstract=True in the Meta class. This model will then not be used to create any database table. Instead, when it is used as a base class for other models, its fields will be added to those of the child class.
+
+[[
+	class CommonInfo(models.Model):
+	    name = models.CharField(max_length=100)
+	    age = models.PositiveIntegerField()
+
+	    class Meta:
+	        abstract = True
+
+	class Student(CommonInfo):
+	    home_group = models.CharField(max_length=5)
+
+	% Student inherits all the base class properties and attributes in addition to its own
+	% The Student model will have three fields: name, age and home_group
+]]
+
+# FIELDS
+
+## FIELD CONSTRAINTS
+
+1. null : 
+
+	+ If True, Django will store empty values as NULL in the database. Default is False.
+
+2. blank :
+
+	+If True, the field is allowed to be blank. Default is False.
+	+ If a field has blank=True, form validation will allow entry of an empty value. If a field has blank=False, the field will be required.
+
+3. choices : 
+
+	+ They are the choice an attributes values can have
+	+ It is a list of 2 element tuples. The first element is the value stored and the second element is the human-readable form
+	+ It is good practice to declare variables for the options
+
+	[[
+		class Student(models.Model):
+		    FRESHMAN = 'FR'
+		    SOPHOMORE = 'SO'
+		    JUNIOR = 'JR'
+		    SENIOR = 'SR'
+		    YEAR_IN_SCHOOL_CHOICES = [
+		        (FRESHMAN, 'Freshman'),
+		        (SOPHOMORE, 'Sophomore'),
+		        (JUNIOR, 'Junior'),
+		        (SENIOR, 'Senior'),
+		    ]
+		    year_in_school = models.CharField(
+		        max_length=2,
+		        choices=YEAR_IN_SCHOOL_CHOICES,
+		        default=FRESHMAN,
+		    )
+
+		    def is_upperclass(self):
+		        return self.year_in_school in (self.JUNIOR, self.SENIOR)
+
+		    % the year_in_school is save as the 2 letter format 
+		    % but by calling get_{foo}_display() you can get the human names
+	]]
+
+	+ You can also collect your available choices into named groups that can be used for organizational purposes
+
+	[[
+		MEDIA_CHOICES = [
+		    ('Audio', (
+		            ('vinyl', 'Vinyl'),
+		            ('cd', 'CD'),
+		        )
+		    ),
+		    ('Video', (
+		            ('vhs', 'VHS Tape'),
+		            ('dvd', 'DVD'),
+		        )
+		    ),
+		    ('unknown', 'Unknown'),
+		]
+	]]
+
+	+ The first element in each tuple is the name to apply to the group. The second element is an iterable of 2-tuples, with each 2-tuple containing a value and a human-readable name for an option. Grouped options may be combined with ungrouped options within a single list (such as the unknown option in this example).
+
+4. db_column : 
+
+	+ The name of the database column to use for this field. If this isn’t given, Django will use the field’s name.
+
+5. default :
+
+	+ The default value for the field. This can be a value or a callable object. If callable it will be called every time a new object is created.
+
+	+ The default can’t be a mutable object (model instance, list, set, etc.), as a reference to the same instance of that object would be used as the default value in all new model instances. Instead, wrap the desired default in a callable.
+
+	[[
+		def return_list():
+			return {"email": "to1@example.com"}
+
+		contact_info = JSONField("ContactInfo", default=contact_default)
+	]]
+
+6. help_text : 
+
+	+ Extra “help” text to be displayed with the form widget. It’s useful for documentation even if your field isn’t used on a form.
+
+	[[
+		help_text="Please use the following format: <em>YYYY-MM-DD</em>."
+	]]
+
+7. primary_key :
+
+	+ If True, this field is the primary key for the model.
+	+ If you don’t specify primary_key=True for any field in your model, Django will automatically add an AutoField to hold the primary key. An autofield is an IntegerField that automatically increments according to available IDs
+	+ primary_key=True implies null=False and unique=True. Only one primary key is allowed on an object
+	+ The primary key field is read-only. If you change the value of the primary key on an existing object and then save it, a new object will be created alongside the old one.
+
+8. unique :
+
+	+ If True, this field must be unique throughout the table.
+
+9. unique_for_date :
+
++ Set this to the name of a DateField or DateTimeField to require that this field be unique for the value of the date field.
++ For example, if you have a field title that has unique_for_date="pub_date", then Django wouldn’t allow the entry of two records with the same title and pub_date.
++ Note that if you set this to point to a DateTimeField, only the date portion of the field will be considered
+
+10 . unique_for_month
+
+11. unique_for_year
+
+## FIELD TYPES
+
+1. AutoField / BigAutoField : 
+
+	+ An IntegerField that automatically increments according to available IDs. You usually won’t need to use this directly; a primary key field will automatically be added to your model if you don’t specify otherwise. 
+
+2. IntegerField / BigIntegerField :
+
+	+ An integer. It uses MinValueValidator and MaxValueValidator to validate the input based on the values that the default database supports.
+
+3. BinaryField :
+
+	+ A field to store raw binary data. By default, BinaryField sets editable to False,
+	+ optional argument : max_length 
+		++ The maximum length (in characters) of the field.
+
+4. BooleanField : 
+
+	+ True or False. 
+	+ The default value of BooleanField is None when Field.default isn’t defined.
+
+5. CharField : 
+
+	+ A string field, for small- to large-sized strings.
+	+ required argument : max_length
+		++ The maximum length (in characters) of the field.
+
+6. TextField :
+
++ A string field,for large amounts of text
++ also has max_length argument
+
+7. DateField :
+
+	+ A date, represented in Python by a datetime.date instance.
+	+ optional arguments : 
+
+		auto_now : 
+
+			++ Automatically set the field to now every time the object is saved.
+			++ Useful for “last-modified” timestamps
+			++ The field is only automatically updated when calling Model.save(). The field isn’t updated when making updates to other fields in other ways such as QuerySet.update()
+
+		auto_now_add : 
+
+			++ Automatically set the field to now when the object is first created. Useful for creation of timestamps. Can't modify afterwards. 
+			++ If you want to be able to modify this field, set the following instead of auto_now_add=True:
+
+				For DateField: default=date.today - from datetime.date.today()
+				For DateTimeField: default=timezone.now - from django.utils.timezone.now()
+
+8. DateTimeField : 
+
+	+ A date and time, represented in Python by a datetime.datetime instance. Takes the same extra arguments as DateField.
+
+9. DecimalField : 
+
+	+ A fixed-precision decimal number, represented in Python by a Decimal instance.
+	+ two required arguments : 
+
+		max_digits : 
+
+			++ total allowed digits in the number
+
+		decimal_places : 
+
+			++ The number of decimal places to store with the number.
+
+10. EmailField : 
+
+	+ CharField with an email validator 
+
+11. FloatField : 
+
+	+ A floating-point number represented in Python by a float instance.
+
+12. TimeField : 
+
+	+ A time, represented in Python by a datetime.time instance. Accepts the same auto-population options as DateField.
+
+13. URLField : 
+
+	+ A CharField for a URL, validated by URLValidator.
+
+# RELATIONSHIP FIELDS 
+
+1. ForeignKey : 
+
+	+ A many-to-one relationship. Requires two positional arguments: the class to which the model is related and the on_delete option.
+	+ The on delete option can be models.CASCADE or models.SET_NULL or models.SET_
+	DEFAULT or models.SET(value)
+	+ If you need to create a relationship on a model that has not yet been defined, you can use the name of the model, rather than the model object itself:
+
+	[[
+		class Car(models.Model):
+		    manufacturer = models.ForeignKey(
+		        'Manufacturer',
+		        on_delete=models.CASCADE,
+		    )
+		    # ...
+
+		class Manufacturer(models.Model):
+		    # ...
+		    pass
+	]]
+
+	+ models inheriting from abstract classes also inherit their foreignkeys and can be used before they are defined. Even from different apps. 
+
+	[[
+		% products/models.py
+		class AbstractCar(models.Model):
+		    manufacturer = models.ForeignKey('Manufacturer', on_delete=models.CASCADE)
+
+		    class Meta:
+		        abstract = True
+
+		 % production/models.py
+		class Manufacturer(models.Model):
+		    pass
+
+		class Car(AbstractCar):
+		    pass
+
+		% Car.manufacturer will point to `production.Manufacturer` here.
+
+	]]
+
++ To refer to models defined in another application, you can explicitly specify a model with the full application label.
+
+[[
+	class Car(models.Model):
+	    manufacturer = models.ForeignKey(
+	        'production.Manufacturer',
+	        on_delete=models.CASCADE,
+	    )
+	    % where production is the other application
+]]
+
++ arguments : 
+
+	on_delete : 
+
+		++ When an object referenced by a ForeignKey is deleted, Django will emulate the behavior of the SQL constraint specified by the on_delete argument
+		++ The possible values for on_delete are found in django.db.models 
+
+		options : 
+
+		* CASCADE - deletes 
+		* PROTECT - raise error
+		* SET_NULL - null if constraint true
+		* SET_DEFAULT - a default should be set
+		* SET() - set to value or value from callable
+		* DO_NOTHING - take no action 
+
+2. ManyToManyField : 
+
+	+ o define a many-to-many relationship, use ManyToManyField. You use it just like any other Field type: by including it as a class attribute of your model.
+
+	+ ManyToManyField requires a positional argument: the class to which the model is related.
+
+	[[
+		class Topping(models.Model):
+		    # ...
+		    pass
+
+		class Pizza(models.Model):
+		    # ...
+		    toppings = models.ManyToManyField(Topping)
+	]]
+
+3. OneToOneField : 
+
+## FIELD ATTRIBUTE REFERENCE
+
+	### ATTRIBUTES FOR FIELDS WITHOUT RELATIONS
+	### ATTRIBUTES FOR FIELDS WITH RELATIONS
+
+# MODELS CONTD ...
+
+## AUTOMATIC PRIMARY KEY
+
++ By default, Django gives each model the following field : 
+	
+	id = models.AutoField(primary_key=True)
+
++ This is an auto-incrementing primary key. If you’d like to specify a custom primary key, just specify primary_key=True on one of your fields. If Django sees you’ve explicitly set Field.primary_key, it won’t add the automatic id column.
+
+## VERBOSE FIELD NAMES 	
+
++ Each field type, except for ForeignKey, ManyToManyField and OneToOneField, takes an optional first positional argument – a verbose name. If the verbose name isn’t given, Django will automatically create it using the field’s attribute name, converting underscores to spaces.
+
+ex. 
+
+	first_name = models.CharField("person's first name", max_length=30)
+
+# META 
+
++ Model metadata is “anything that’s not a field”, such as ordering options (ordering), database table name (db_table), or human-readable singular and plural names (verbose_name and verbose_name_plural). None are required, and adding class Meta to a model is completely optional.
+
+ 

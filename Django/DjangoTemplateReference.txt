@@ -1,0 +1,201 @@
+-- template reference language of django --
+
+# TEMPLATE 
+
++ A template is simply a text file. It can generate any text-based format (HTML, XML, CSV, etc.). A template contains variables, which get replaced with values when the template is evaluated, and tags, which control the logic of the template.
+
++ Variables look like this: {{ variable }}. When the template engine encounters a variable, it evaluates that variable and replaces it with the result. Variable names consist of any combination of alphanumeric characters and the underscore ("_") but may not start with an underscore. The dot (".") also appears in variable sections, although that has a special meaning, as indicated below.
+
+# FILTERS 
+
++ You can modify variables for display by using filters. Use a pipe (|) to apply a filter. Filters can be “chained.” The output of one filter is applied to the next. Some filters take arguments. Filter arguments that contain spaces must be quoted.
+
+ex. {{ variable|filter1|filter2:argument }}
+
+## FILTER REFERENCE 
+
+1. add - 
+
+	+ Adds the argument to the value. This filter will first try to coerce both values to integers. If this fails, it’ll attempt to add the values together anyway. This will work on some data types (strings, list, etc.) and fail on others. If it fails, the result will be an empty string.
+
+	{{ value|add:"2" }}
+	// if value is 4 >> 6
+	{{ first|add:second }}
+	// first is [1, 2, 3] and second is [4, 5, 6] >> [1, 2, 3, 4, 5, 6].
+
+2. capfirst -  capitalizes the first letter
+
+3. center - Centers the value in a field of a given width.
+
+	{{ value|center:"15" }}
+	// If value is "Django", the output will be "     Django    "
+
+4. cut - removes all arg values 
+
+	{{ value|cut:" " }}
+	// If value is "String with spaces", the output will be "Stringwithspaces".
+
+5. dictsort / dictsortreversed - 
+
+	+ Takes a list of dictionaries and returns that list sorted by the key given in the argument.
+
+	{{ value|dictsort:"name" }}
+	//
+	[
+	    {'name': 'zed', 'age': 19},
+	    {'name': 'amy', 'age': 22},
+	    {'name': 'joe', 'age': 31},
+	]
+	to
+	[
+	    {'name': 'amy', 'age': 22},
+	    {'name': 'joe', 'age': 31},
+	    {'name': 'zed', 'age': 19},
+	]
+
+	+ dictsort can also order a list of lists (or any other object implementing __getitem__()) by elements at specified index.
+
+	{{ value|dictsort:0 }}
+	[
+	    ('a', '42'),
+	    ('c', 'string'),
+	    ('b', 'foo'),
+	]
+	to
+	[
+	    ('a', '42'),
+	    ('b', 'foo'),
+	    ('c', 'string'),
+	]
+
+6. escape - Escapes a string’s HTML. 
+
+	+ Applying escape to a variable that would normally have auto-escaping applied to the result will only result in one round of escaping being done. So it is safe to use this function even in auto-escaping environments
+
+7. join - Joins a list with a string, like Python’s str.join(list)
+
+	{{ value|join:" // " }}
+	// value is the list ['a', 'b', 'c'], the output will be the string "a // b // c".
+
+8. last - Returns the last item in a list.
+
+	{{ value|last }}
+	// If value is the list ['a', 'b', 'c', 'd'], the output will be the string "d".
+
+9. length - Returns the length of the value. This works for both strings and lists.
+
+10 . linebreaks - 
+
+	+ Replaces line breaks in plain text with appropriate HTML; a single newline becomes an HTML line break (<br>) and a new line followed by a blank line becomes a paragraph break (</p>).
+
+	{{ value|linebreaks }}
+	// If value is Joel\nis a slug, the output will be <p>Joel<br>is a slug</p>.
+
+11. linebreaksbr - Converts all newlines in a piece of plain text to HTML line breaks (<br>).
+
+	{{ value|linebreaksbr }}
+	// value is Joel\nis a slug, the output will be Joel<br>is a slug.
+
+12. ljust / (rjust) - Left-aligns the value in a field of a given width.
+
+	{{ value|ljust:"10" }}
+	// If value is Django, the output will be "Django    ".
+
+13. lower / upper - converts to appropriate case
+
+14. make_list - 
+
+	+ Returns the value turned into a list. For a string, it’s a list of characters. For an integer, the argument is cast to a string before creating a list.
+
+	{{ value|make_list }}
+	// If value is the string "Joel", the output would be the list ['J', 'o', 'e', 'l']. If value is 123, the output will be the list ['1', '2', '3'].
+
+15. striptags - Makes all possible efforts to strip all [X]HTML tags.
+
+	{{ value|striptags }}
+	// If value is "<b>Joel</b> <button>is</button> a <span>slug</span>", the output will be "Joel is a slug".
+
+16. truncatechars - 
+
+	+ Truncates a string if it is longer than the specified number of characters. Truncated strings will end with a translatable ellipsis character (“…”).
+
+	{{ value|truncatechars:7 }}
+	// If value is "Joel is a slug", the output will be "Joel i…".
+
+17. truncatewords - Truncates a string after a certain number of words.
+
+	{{ value|truncatewords:2 }}
+	// If value is "Joel is a slug", the output will be "Joel is …".
+
+18. urlencode - Escapes a value for use in a URL.
+
+	{{ value|urlencode }}
+	// If value is "https://www.example.org/foo?a=b&c=d", the output will be "https%3A//www.example.org/foo%3Fa%3Db%26c%3Dd".
+
+	+ If not provided, the ‘/’ character is assumed safe. An empty string can be provided when all characters should be escaped. For example:
+
+	{{ value|urlencode:"" }}
+
+19. wordwrap - Wraps words at specified line length.
+	
+	{{ value|wordwrap:5 }}
+	// If value is Joel is a slug, the output would be:
+
+		Joel
+		is a
+		slug
+
+# TAGS 
+
++ jinja statements
+
+// refer the jinja segment on this topic //
+
+# TEMPLATE INHERITANCE 
+
+// jinja extends and include // 
+
+# AUTOMATIC HTML ESCAPING 
+
++ When generating HTML from templates, there’s always a risk that a variable will include characters that affect the resulting HTML
+
++ To avoid this problem, you have two options:
+
+	++ One, you can make sure to run each untrusted variable through the escape filter, which converts potentially harmful HTML characters to unharmful ones. This was the default solution in Django for its first few years, but the problem is that it puts the onus on you, the developer / template author, to ensure you’re escaping everything. It’s easy to forget to escape data.
+
+	++ Two, you can take advantage of Django’s automatic HTML escaping. 
+
++ By default in Django, every template automatically escapes the output of every variable tag
+
++ To turn it off - use a safe filter 
+
+	This will be escaped: {{ data }}
+	This will not be escaped: {{ data|safe }}
+
+	{% autoescape off %}
+	    This will not be auto-escaped: {{ data }}.
+
+	    Nor this: {{ other_data }}
+	    {% autoescape on %}
+	        Auto-escaping applies again: {{ name }}
+	    {% endautoescape %}
+	{% endautoescape %}
+
+# BUILT IN TEMPLATE TAGS AND FILTERS
+
+* url - 
+
+	+ Returns an absolute path reference (a URL without the domain name) matching a given view and optional parameters.
+
+	{% url 'some-url-name' v1 v2 %}
+	{% url 'some-url-name' arg1=v1 arg2=v2 %}
+
+	+ The first argument is a URL pattern name. It can be a quoted literal or any other context variable. Additional arguments are optional and should be space-separated values that will be used as arguments in the URL.
+
+* with - 
+
+	+ Caches a complex variable under a simpler name.
+
+	{% with alpha=1 beta=2 %}
+	    ...
+	{% endwith %}

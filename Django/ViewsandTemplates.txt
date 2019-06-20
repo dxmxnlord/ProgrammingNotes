@@ -1,0 +1,62 @@
+-- astolfo best trap -- 
+
+# WRITING VIEWS
+
+	def detail(request, question_id):
+	    return HttpResponse("You're looking at question %s." % question_id)
+
+	def results(request, question_id):
+	    response = "You're looking at the results of question %s."
+	    return HttpResponse(response % question_id)
+
+	def vote(request, question_id):
+	    return HttpResponse("You're voting on question %s." % question_id)
+
+	urlpatterns = [
+	    # ex: /polls/
+	    path('', views.index, name='index'),
+	    # ex: /polls/5/
+	    path('<int:question_id>/', views.detail, name='detail'),
+	    # ex: /polls/5/results/
+	    path('<int:question_id>/results/', views.results, name='results'),
+	    # ex: /polls/5/vote/
+	    path('<int:question_id>/vote/', views.vote, name='vote'),
+	]
+
++ Using angle brackets “captures” part of the URL and sends it as a keyword argument to the view function. The :question_id> part of the string defines the name that will be used to identify the matched pattern, and the <int: part is a converter that determines what patterns should match this part of the URL path.
+
+# RENDER 
+
+	def index(request):
+	    latest_question_list = Question.objects.order_by('-pub_date')[:5]
+	    context = {'latest_question_list': latest_question_list}
+	    return render(request, 'polls/index.html', context)
+
++ Render an HTML page
+
+# RAISING A 404 ERROR
+
+	from django.http import Http404
+	from .models import Question
+	def detail(request, question_id):
+    try:
+        question = Question.objects.get(pk=question_id)
+    except Question.DoesNotExist:
+        raise Http404("Question does not exist")
+    return render(request, 'polls/detail.html', {'question': question})
+
+# CLEANER 404 RAISE
+
++ use the get_object_or_404() for a get query 
++ use the get_list_or_404() for a filter query
+
+	def detail(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, 'polls/detail.html', {'question': question})
+
+# REMOVING HARDCODED URLS IN TEMPLATES
+
++ The problem with this hardcoded, tightly-coupled approach is that it becomes challenging to change URLs on projects with a lot of templates. However, since you defined the name argument in the path() functions in the polls.urls module, you can remove a reliance on specific URL paths defined in your url configurations by using the {% url %} template tag:
+
+	<li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
+	<li><a href="{% url 'detail' question.id %}">{{ question.question_text }}</a></li>

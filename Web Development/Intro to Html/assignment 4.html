@@ -1,0 +1,43 @@
+ <!DOCTYPE html>
+ <html>
+ <head>
+ 	<title>Assignment 4</title>
+ </head>
+ <body>
+ <h1>Register</h1>
+ <form>
+ 	<label for="fname">First Name:</label>
+ 	<input type="text" id="fname" placeholder="John" name ="fname" required>
+ 	<label for="lname">Last Name:</label>
+ 	<input id="lname" type="text" placeholder="Smith" name ="lname" required>
+ 	<br>
+ 	<label for="mgen">Male</label>
+ 	<input type="radio" id="mgen">
+ 	<label for="fgen">Female</label>
+ 	<input type="radio" id="fgen">
+ 	<label for="oth">Other</label>
+ 	<input type ="radio" id="oth">
+ 	<br>
+ 	<label for="em">Email:</label>
+ 	<input type="email" name="email" id="em" placeholder ="Your email" required>
+    <label for="psw">Password</label>
+    <input id="psw" name="pswd" type="password" maxlength="10" minlength="5" required>
+    <br>
+    <label for="bd">Birthday</label>
+    <select name="month" id="bd" selected="Month" >
+    	<option>Month</option>
+    </select>
+    <select name="day" id="bd" selected="Day">
+    	<option>Day</option>
+    </select>
+    <select name="year" id="bd" selected="Year">
+    	<option>Year</option>
+    </select>
+    <br>
+    <label for="cond">I agree to the terms and conditions</label>
+    <input type="checkbox" name="cond" id="cond" required>
+    <br>
+    <input type="submit">
+ </form>
+ </body>
+ </html>

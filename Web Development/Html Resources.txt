@@ -1,0 +1,4 @@
+Mozilla Developer Network (MDN)
+
+* "MDN tags" gives you a list of all html tags 
+* "MDN attributes" gives you a tag reference

@@ -1,0 +1,59 @@
+
+p{
+/*Border properties*/
+
+border: 2px solid blue; 
+/*the border is sticking to the box so we add some padding*/
+/*sometimes has a default value of 2px so making it 0 will bring everything touching each other or even float:left then set margin*/
+border-spacing: 50px;
+border-width: 5px;
+
+
+/*content properties*/
+
+width: 200px; /*by default the width of content is the entire page so the border goes all the way around*/
+/*or width: 50%; --> each takes a size that is 50% of parent element (here its the body), changes size with change in window size also*/
+height: 30px;
+/*
+max-width: 700px;
+width: 80%;
+--> makes width 80% of window size but if 80% > 700px, width=700px constant
+*/
+
+/*Padding properties*/
+
+padding:8px; /* sets on all four sides */
+/*for individual selections:*/
+padding-top: 10px;
+padding-bottom: 11px;
+padding-bottom: 12px;
+
+
+/*Margin properties*/
+
+margin-top:20px;
+margin-bottom:20px; 
+/*for all at once TRBL order */
+/*you can use auto as well*/
+margin: 10px 0px 15px 0px;
+margin: 0 auto 0 auto;
+/*OR JUST TB,LR*/
+margin: 10px 10px;
+
+}
+
+#a1a{
+background-color: red;
+}
+#a2a{
+background-color: blue;
+}
+
+div{
+width:20px;
+/*this brings the bottom --divs-- up and to the left respectively of each
+sorta like gravity has changed to the left*/
+/*float:left also arranges everything touching each other and the tiny gap
+between elements is removed*/
+float:left;
+}

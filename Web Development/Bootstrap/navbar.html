@@ -1,0 +1,142 @@
+ <!DOCTYPE html>
+ <html>
+ <head>
+ 	<title>Navbar Bootstrap</title>
+ 	<link rel="stylesheet" type="text/css" href="bootstrap.css">
+ 	<style type="text/css">
+ 		.bord{
+ 			border-left:1px solid;
+ 			border-color: #003cb3;
+ 		}
+ 		.last{
+ 			border-right:1px solid;
+ 			border-color: #003cb3;
+ 		}
+ 		.brand{
+ 			margin:0 50px 0 50px;
+ 		}
+ 		#id1{
+ 			/*without this the sign up sticks to the right*/
+ 			/*or you can enclose the entire navbar's div-set in a container*/
+ 			margin-right:15px;
+ 		}
+ 		.col{
+ 			background-color: #002266;
+ 		}
+ 	</style>
+ </head>
+ <body>
+ 
+ 	<!-- simplest navbar  -->
+  <!-- for a fixed navbar: add navbar-fixed-top to class -->
+ 	<nav class="navbar navbar-default col"> <!-- or navbar-inverse--> 
+ 		<!-- for the brandname  -->
+ 		<div class="navbar-header">
+			<a href="homepage" class="navbar-brand brand">brandname <img src=""></a>
+ 		</div>
+ 		<!-- other content on left-->
+ 		<ul class="nav navbar-nav">
+ 			<li class="bord"><a href="to about page">About</a></li>
+ 			<li class="bord last"><a href="to contact">Contact</a></li>
+ 		</ul>
+ 		<ul class="nav navbar-nav navbar-right">
+ 			<li class="bord"><a href="#">Login</a></li>
+ 			<li class="bord" id="id1"><a href="#">Sign Up</a></li>
+ 		</ul>
+ 	</nav>
+
+ 	<!-- bootstrap navbar -->
+
+ 	<!-- the menus dont work without javascript so add it to the head -->
+ 	<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Brand</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    	<!-- collapses the navbar when it reaches mobile size -->
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
+        <li><a href="#">Link</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">One more separated link</a></li>
+          </ul>
+        </li>
+      </ul>
+      <form class="navbar-form navbar-left">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search">
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+      </form>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">Link</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<!-- simple navbar with bootstrap implants -->
+
+<nav class="navbar navbar-default col">
+	<div class="navbar-header">
+		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#contenttobecollapsed" aria-expanded="false">
+			<!-- # is important on the data-target what it does:
+			1. data-toggle collapses the data and replaces with button
+			2. data-target id of data to be collapsed 
+			3. class uncollapses if pressed-->
+        <span class="sr-only">Toggle navigation</span>
+        <!-- the bar symbol recreated using css -->
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    	</button>
+	<a href="homepage" class="navbar-brand brand">brandname</a>
+	</div>
+	<!-- since its outside the id its not collapsed -->
+	<ul class="nav navbar-nav">
+    <!-- the class active makes it highlighted -->
+		<li class="bord active"><a href="to about page">About</a></li>
+		<li class="bord last"><a href="to contact">Contact</a></li>
+	</ul>
+	<!-- collapsing div id -> id of content of which the collapsing action will work -->
+	<div class="collapse navbar-collapse" id="contenttobecollapsed">
+	<ul class="nav navbar-nav navbar-right">
+		<li class="bord"><a href="#">Login</a></li>
+		<li class="bord" id="id1"><a href="#">Sign Up</a></li>
+	</ul>
+	</div>
+</nav>
+
+
+<!-- Jquery CDN and jScript bootstrap -->
+<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+<script src="bootstrap.js"></script>
+ </body>
+ </html>

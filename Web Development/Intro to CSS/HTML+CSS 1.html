@@ -1,0 +1,42 @@
+<!--
+/There are two ways to introduce CSS. One way is to incorporate it into the html file and have both the CSS and HTML in the file. But it gets very complicated and hard to update and is avoided. There are two ways to incorporate it. The first is to add a style tag in the head and the second is to add a style attribute to each element. The second is very tedious and the first merges both into the same file which we want to avoid. The style tag can be used for check how the styling would work or debugging ie. temporary checks.
+-   
+ -->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>About me</title>
+	<style type="text/css">
+	/* whatever is inside the style tag is only css */
+
+	/* default syntax is 
+
+	   selector {
+	              property: value;
+	   }
+	 [the selector selects all the elements that are the same as it]
+    */
+
+	li {
+		color: purple;
+	}
+	h1 {
+		color: maroon;
+	}
+	h4 {
+		color: magenta;
+	}	
+	</style>
+</head>
+<body>
+<h1>About Me</h1>
+<h4>My Hobbies:</h4>
+<ol>
+	<li style="color: green;">Watching Anime</li>
+	<!-- the style attribute can be used on all text tags and adds style -->
+	<li>Sleeping</li>
+	<li>Cocaine</li>
+	<!-- In case of conflict like the li purple or green case above, it takes the color green because it is the last style applied -->
+</ol>
+</body>
+</html>

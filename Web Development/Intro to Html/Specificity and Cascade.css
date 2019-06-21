@@ -1,0 +1,45 @@
+/*Incase of 2 or more selectors affecting an element there is an an order of specificity*/
+/* Check MDN-specificity for more */
+
+
+/*[In order or least priority to most Priority]*/
+
+/*Universal Selectors*/
+body {
+
+}
+
+/*elements and pseudo-elements*/
+
+h1{
+
+}
+
+ul li{
+
+}
+
+li + a {
+
+}
+
+/*Classes, attributes and pseudo-classes*/
+
+.hello {
+
+} 
+
+input[type="text"] {
+
+}
+
+a:hover
+input:checked
+
+/*Id selectors*/
+
+#friend {
+
+}
+
+/*Inline styles*/

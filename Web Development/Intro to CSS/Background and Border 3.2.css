@@ -1,0 +1,45 @@
+  body {
+  	background: #95a5a6;
+  	/*
+  	For an image background:
+
+  	body {
+	  background: url(https://www.url.com);
+  	}
+
+  	But sometimes the image doest fill the entire screen 
+  	so incude: 
+
+  	body {
+	  background: url(https://www.url.com);
+	  background-repeat: no-repeat;
+	  background-size: cover;
+ 	}
+
+  	*/
+  }
+
+  div {
+  	background : #3498db;
+  }
+
+  p {
+  	color: aquamarine;
+  }
+
+  h1 {
+  	color: rgba(0,240,100,1);
+  	border: 3px solid purple; /* solid/dotted/dashed */
+/*  Or do this:;
+
+  	border-color: purple;
+  	border-width: 3px;
+  	border-style: solid;
+ */ 
+  }
+
+  h4 {
+  	background: pink;
+    border: 2px dashed pink;
+    border-radius: 5px; /* rounded border */
+  }

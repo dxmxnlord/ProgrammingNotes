@@ -1,0 +1,23 @@
+	/*
+	/There are 2 ways to choose colors.
+	one is the hexadecimal color system the other is the rgb system.
+	*/
+	li {
+		color: #FF001F;
+		/* 
+		Each color has a unique code [You can look it up online on a color chart]. Each code is comprised
+		of an #[octothorpe] followed by six alphanumeric characters [0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F where F 
+		is the greatest and 0 is the least]. The first two character add red colour the second two add green
+		and the third two add blue. So #000000 is black and #FFFFFF is white and #00FF00 is green
+		*/
+	}
+	h1 {
+		color: rgb(0,255,255);
+		/* 
+		Same with the Hexa system but this is decimal and the max value is 255 rather than F
+		*/
+	}
+	h4 {
+		color: rgba(0,0,255,0.5)
+		/* The last column is for transparency.[0-1] */
+	}

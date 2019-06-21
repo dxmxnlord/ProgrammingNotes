@@ -1,0 +1,89 @@
+<!-- 
+/the form tag(<form action="" method="">)(Block Level Element) is used to get inputs from the user. Backend is needed for any response. It sends data from the form to a server somewhere. Action is the url to send form data to. If there is no action, it sends the data back to itself. Method is the type of HTTP request. There are two methods:
+  "post" : to post onto a database [like signing up]
+  "get" : to retrieve information from a database [like searching on google]
+-the form tag acts like a container for all the different types of inputs on a page or in a particular part of a page. 
+/the input tag(<input type="" $name="" $id="" $placeholder="">): goes inside the <form></form>. It creates the different inputs. The type attribute can take various forms:
+ text
+ date 
+ color
+ file
+ checkbox
+ radio
+ submit [same as a button named submit]
+-the placeholder fills the input box with dummy text to give the user an example of what they have to fill [abc@gmail.com]
+-the name shows the data sent along with the request. It gets added as a query string. 
+/label tag (<label>): you embed the input inside the label along with text. It creates a label for the input.
+/textarea tag (<textarea rows="" cols="">): creates a textbox
+/select tag (<select>): creates a dropdown box
+* MDN input has all the type's values.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Input</title>
+</head>
+<body>
+<h1> Sign In </h1>
+<!-- The form clubs all the inputs together and sends them together -->
+<form action ="http://www.google.com" method ="post">
+	<input type ="text" placeholder ="input text" name ="inp text">
+	<input type ="password" placeholder="input password" name ="pswd">
+	<button>SubmitB</button>
+	<input type="submit">
+</form>
+<br><br>	
+<!-- Stand alone inputs -->
+<input type="color">
+<input type="radio">
+<br><br>
+<form>
+	<label>Text:<input type ="text"></label>
+	<!-- Here you embed the input inside. -->
+	<label for ="pswd">Password:</label>
+	<input id ="pswd" type ="password" maxlength="10" minlength="5">
+	<!-- Max and Min length specify the length -->
+	<!-- You can avoid embedding by giving the input an id and the label a for attribute to identify which input to label -->
+	<input type="submit">
+</form>
+<br>
+<br>
+       <!-- Check validation -->
+<form>
+
+	<!-- The required attribute ensures than it is not left blank by giving a prompt -->
+	<input type ="text" required>
+	<!-- or required="true" -->
+	
+       <!-- Type validation -->
+
+	<input type ="email" required>
+	<!-- for email it checks empty as well as proper syntax [abc@xyz.com] -->
+	<input type="submit">
+</form>	
+<br><br>
+               <!-- Radio Buttons -->
+<form>
+	<label for ="radio">Cats:</label>
+	<input type ="radio" id = "radio" value ="CATS">
+	<!-- In order for it to send the option 'dogs' or 'cats' instead of on/off you add value-->
+	<label for="radio2">Dogs:</label>
+	<input type ="radio" id ="radio2" value ="DOGS">
+	<input type="submit">
+</form>
+<br><br>
+                <!-- Drop down tag -->                
+<select name="color" selected ="Red">
+	<!-- selected selects an option by default -->
+	<option>Red</option>
+	<option>blue</option>
+	<option>green</option>
+	<!-- if you want to send a different data rather than what is displayed in the box like happy for :)  -->
+	<option value ="happy">:)</option>
+</select>
+<br><br>
+<input type="textbox" checked>
+<!-- checked checks the box automatically -->
+<textarea rows="10" cols="10"></textarea>
+</body>
+</html>

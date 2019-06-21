@@ -1,0 +1,7 @@
+* in front - useful tip/shortcut
+* after a tag - self closing tag
+** anywhere - important information
+- in front - continuation of a point after a break
+/ in front - a new point
+[] after some text - normal brackets
+$ - optional

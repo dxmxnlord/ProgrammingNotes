@@ -1,0 +1,71 @@
+ 
+/* * Tuts+ 30 selectors you must memorize [do read] */
+ /*Element selector*/
+ li { 
+ 	border: 1px dashed blue;
+ }
+ /* To edit the style of one particular element and
+ not all */
+
+ /*Id selector*/
+ #special{
+ 	background: yellow;
+ }
+
+ /* Classes are the same as ids but we can apply them
+ to any number of elements on a page */
+
+/*Class selector*/
+ .high{
+ 	color: blue;
+ 	background: lightgreen;
+ 	text-decoration: line-through;
+ 	/* there are many decorations check mdn for any 
+ 	property for all values*/
+ }
+
+ /*Star Selector - selects everything on the page */
+ * {
+ 	text-decoration: underline;
+ }
+
+/*Descendant selector - selecting all elements under
+      					a given element */
+li a { /* or ul li a {} or ex li .high {} */
+	color: purple;
+}
+
+/*adjacent selector - elements that come directly after a given
+                      element. ex all li after a h4 */
+
+h4 + ul {
+	border: 1px solid red;
+}
+
+/*Attribute selector - selection based on an attribute
+                       ex. all <a> with href as google*/
+a[href="http://www.google.com"] {
+/* ex. input[type="text"]{}*/
+	background: lightblue;
+}
+
+/*nth of type - nth occurence of an element in a group 
+                on the page. ex. every second li */
+ul:nth-of-type(4){ /*selects the 4th ul*/
+	background: yellow;
+}
+ul:nth-of-type(1) li:nth-of-type(3){
+	text-decoration: line-through;
+	background:black;
+	/* every 3rd li in a ul group not the third li*/
+}
+li:nth-of-type(even) {
+	background: maroon;
+}
+
+/*pseudo selector*/
+/*Make the first letter of the element with id 'special' green and 100px font size(font-size: 100)
+#special::first-letter {
+	color: green;
+	font-size: 100px;
+}*/

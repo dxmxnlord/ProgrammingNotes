@@ -1,0 +1,121 @@
+
+#content{
+	text-align: center;
+	padding-top: 25%;
+	padding-bottom: 25%;
+	font-family: montserrat; 
+	background: url(https://lasiestaresorts.com/wp-content/uploads/2017/12/Pharmacy-in-Gozo.jpg);
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+.navbar{
+	margin-bottom: 0;
+}
+h1{
+	color: #ff6600;
+}
+.fullw{
+	border-color:grey;
+	width:100%;
+}
+hr{
+	width:60%;
+	border-color: blue;
+}
+.centre{
+	text-align:center;
+	font-family: merriweather;
+}
+h1{
+	font-size: 5.0em;
+}
+h3{
+	font-family: montserrat;
+	font-size: 2.0em;
+}
+.con1{
+	font-family:rubik;
+}
+.con2{
+	padding-top: 15px;
+	padding-bottom:15px;
+	padding-left: 20px;
+	padding-right:15px;
+	border-right: 1px solid #ccccb3;
+	border-left: 1px solid #ccccb3;
+	font-family:rubik;
+}
+.namay{
+	font-family: merriweather;
+	font-size: 1.5em;
+	padding-right: 20px;
+	padding-bottom: 20px;
+}
+.email{
+	padding-bottom: 20px;
+	padding-top: 0;
+	font-family: merriweather;
+	font-size: 1em;
+
+}
+.con3{
+	padding-top: 15px;
+	padding-bottom:15px;
+	font-family:rubik;
+}
+button{
+	margin-right: 50px;
+	margin-left: 50px;
+	font-family: roboto slab;
+}
+.create{	
+	text-align:center;
+	font-family: roboto slab;
+}
+.desc{
+	text-align: left;
+	padding-top: 37px;
+	padding-bottom: 30px;
+	font-family: rubik;
+}
+#butt{
+	color:white;
+}
+#brand{
+	border-right: 1px solid grey;
+	color:white;
+}
+.navbar{
+	background-color: darkblue;
+}
+a {
+	font-family: montserrat;
+}
+li{
+	border-left: 1px solid grey;
+}
+.btn-lg {
+    padding: 10px 40px;
+    font-size: 18px;
+    line-height: 1.3333333;
+    border-radius: 6px;
+}
+.colo0{
+	background-color: #ff8533;
+	padding: 15px 15px;
+}
+.colo1{
+	background-color: #ff8533;
+	padding: 15px 15px;
+}
+.colo2{
+	background-color: #ff8533;
+	padding: 15px 15px;
+}
+.foot{
+	text-align: center;
+	background-color: #1f1f14;
+	color: white;
+	padding: 20px 20px;
+}
+/*http://blog.pharmapodhq.com/wp-content/uploads/2018/04/Pharmacist-590x395.jpg*/

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>bootstrap forms</title>
+	<link rel="stylesheet" type="text/css" href="bootstrap.css">
+	<style type="text/css">
+		.jumbotron{
+			background-color: lightblue;
+		}
+		#id1{
+			color:purple;
+			font-size:20px;
+		}
+	</style>
+</head>
+<body>
+	<!-- JUMBOTRON -->
+	<p id="id1">The objective of this article is to provide the reader with a basic instructions on how to customize the dock panel on the default Gnome Ubuntu 18.04 Bionic Beaver desktop.</p>
+
+	<!-- jumbotron (its in components) takes up 100% of parent container-->
+	<div class="jumbotron">
+
+		<h1>	<!-- glyphcons are symbols, this ones a star -->
+	<span class="glyphicon glyphicon-star" aria-hidden="true"></span>Hello, world!</h1>
+		<p>wfierbfierf ebfuerbfueb uhebfuerb fuyebf uebff ueb fu bfrb fyr furb fuqrbiqh fiq fu buqrbue bfouerb </p>
+		<p><a class="btn btn-primary btn-lg" href="https://www.google.com" role="button">Learn more</a></p>
+	</div>
+  <div class="container"> 
+  	<!-- bootstap container -->
+  	<p>The objective of this article is to provide the reader with a basic instructions on how to customize the dock panel on the default Gnome Ubuntu 18.04 Bionic Beaver desktop.</p>
+  </div>
+
+  <!-- FORMS -->
+
+  <!-- normal form -->
+
+  <div class="container">
+	<form>
+	  <div>
+	  	<!-- no form group emailbox and password bunched together-->
+	    <label for="exampleInputEmail1">Email address</label>
+	    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
+	  </div>
+	  <div class="form-group">
+	  	<!-- form-group gives optimum spacinng between inputs and labels-->
+	    <label for="exampleInputPassword1">Password</label>
+	    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+	  </div>
+	  <div class="form-group">
+	    <label for="exampleInputPassword1">Password</label>
+	    <!-- form control is bootstrap form layout -->
+	    <!-- NO FORM CONTROL -->
+	    <input type="password" id="exampleInputPassword1" placeholder="Password">
+	  </div>
+	  <div class="form-group">
+	    <label for="exampleInputFile">File input</label>
+	    <input type="file" id="exampleInputFile">
+	    <p class="help-block">Example block-level help text here.</p>
+	  </div>
+	  <div class="checkbox">
+	    <label>
+	      <input type="checkbox"> Check me out
+	    </label>
+	  </div>
+	  <button type="submit" class="btn btn-default">Submit</button>
+	</form>
+
+	<!-- inline form -->
+	<form class="form-inline">
+	  <div class="form-group">
+	    <label for="exampleInputEmail1">Email address</label>
+	    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
+	  </div>
+	  <div class="form-group">
+	    <label for="exampleInputPassword1">Password</label>
+	    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+	  </div>
+	 </form>
+	 
+	</div>
+</body>
+</html>

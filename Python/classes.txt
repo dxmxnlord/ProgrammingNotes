@@ -1,0 +1,196 @@
++ Inheritance is the capability of one class to derive or inherit the properties from some another class. Base classes inherit from the object class.
+
+[[
+	class Person(object): 
+	       
+	    // Constructor 
+	    def __init__(self, name): 
+	        self.name = name 
+	   
+	    // To get name 
+	    def getName(self): 
+	        return self.name 
+	   
+	    // To check if this person is employee 
+	    def isEmployee(self): 
+	        return False
+	   
+	   
+	// Inherited or Sub class (Note Person in bracket) 
+	class Employee(Person): 
+	   
+	    # Here we return true 
+	    def isEmployee(self): 
+	        return True
+	   
+	// Driver code 
+	emp = Person("Geek1")  // An Object of Person 
+	print(emp.getName(), emp.isEmployee()) 
+	   
+	emp = Employee("Geek2") // An Object of Employee 
+	print(emp.getName(), emp.isEmployee()) 
+]]
+
++ A child class needs to identify which class is its parent class. This can be done by mentioning the parent class name in the definition of the child class. This is called subclassing. While subclassing it is also necessary to call the superclass's constructor. If no constructor is defined and the arguments are provided during instantiation then it is automatically called.
+
+[[
+	class Person( object ):     
+	  
+	        // __init__ is known as the constructor          
+	        def __init__(self, name, idnumber):    
+	                self.name = name 
+	                self.idnumber = idnumber 
+	        def display(self): 
+	                print(self.name) 
+	                print(self.idnumber) 
+	  
+	// child class 
+	class Employee( Person ):            
+	        def __init__(self, name, idnumber, salary, post): 
+	                self.salary = salary 
+	                self.post = post 
+	  
+	                // invoking the __init__ of the parent class  
+	                Person.__init__(self, name, idnumber)  
+]]
+
+# super() IN SINGLE INHERITANCE
+
++ the function super() lets you access methods and attributes of superclasses of different levels. The function takes 2 arguments the first being the superclass whose super's namespace should be searched for the appropriate method and the second provides the context of the current object to the super() for the requested method to act upon. 
+
+[[
+	
+	class Square: 
+	     def __init__(self, side): 
+	         self.side = side 
+	  
+	     def area(self): 
+	         return self.side * self.side 
+
+
+	class SquarePrism(Square): 
+	     def __init__(self, side, height): 
+	         self.side = side 
+	         self.height = height 
+	  
+	     def face_area(self): 
+	         base_area = super().area() 
+	         lateral_area = self.side * self.height 
+	         return base_area, lateral_area 
+	  
+	     def area(self): 
+	         base_area = super().area() 
+	         lateral_area = self.side * self.height 
+	         return 2 * base_area + 4 * lateral_area 
+
+
+	class Cube(SquarePrism): 
+	     def __init__(self, side) 
+	         super().__init__(side = side, height = side) 
+	  	 // searches squareprism's super .ie. square for area()
+	     def face_area(self): 
+	         return super(SquarePrism, self).area() 
+	  
+	     def area(self): 
+	         return super().area() 
+]]
+
++ Super can also be replaced with a classname as in :
+
+[[
+	class Square: 
+	     def __init__(self, side): 
+	         self.side = side 
+	  
+	     def area(self): 
+	         return self.side * self.side 
+
+	class Cube(Square): 
+	     def area(self): 
+	         return Square.area() * 6
+	  
+	     def volume(self): 
+	         return Square.area() * self.side() 
+]]
+
+# ABSTRACT CLASSES AND ABSTRACTION
+
++ All abstract classes inherit from the AbstractBaseClass defined in the 'abc' model. ABC works by marking methods of the base class as abstract and then registering concrete classes as implementations of the abstract base.
+
+[[
+	from abc import ABC, abstractmethod 
+	  
+	class Polygon(ABC): 
+	  
+	    // abstract method 
+	    def noofsides(self): 
+	        pass
+	  
+	class Triangle(Polygon): 
+	  
+	    // overriding abstract method 
+	    def noofsides(self): 
+	        print("I have 3 sides") 
+	  
+	class Pentagon(Polygon): 
+	  
+	    // overriding abstract method 
+	    def noofsides(self): 
+	        print("I have 5 sides") 
+]]
+
++ Abstact classes can also be implemented through subclassing. By subclassing directly from the base, we can avoid the need to register the class explicitly. However instantiation of the parent will be possible.
+
+[[
+	class parent:        
+	    def geeks(self): 
+	        pass
+	  
+	class child(parent): 
+	    def geeks(self): 
+	        print("child class") 
+	  
+]]
+
++ Abstract classes can have concrete as well as abstract methods. 
+
+[[
+	class R(ABC): 
+	    def rk(self): 
+	        print("Abstract Base Class") 
+	  
+	class K(R): 
+	    def rk(self): 
+	        super().rk() 
+	        print("subclass ") 
+]]
+
++ Abstract classes may have unimplemented methods. When the class is subclassed, the methods must be overridden before the class can be instantiated. This is ensured by using the @abstractmethod decorator on a method. 
+
+[[
+	from abc import abstractmethod
+	class Animal(ABC): 
+	    @abstractmethod
+	    def move(self): 
+	        pass
+	    def legcount(self)
+	    	pass
+
+	class Human(Animal): 
+	    def move(self): 
+	        print("I can walk and run") 
+	    def legcount(self):
+	  		self.legs=2
+
+	class Snake(Animal): 
+	    def move(self): 
+	        print("I can crawl")
+
+	class Dog(Animal): 
+	    def legcount(self): 
+	        self.legs=4 
+
+	human=Human() // allowed
+	snake=Snake() // allowed
+	dog=Dog() // error unimplimented move()
+]]

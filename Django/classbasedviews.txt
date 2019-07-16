@@ -1,0 +1,1186 @@
+-- class based views in django --
+
++ Django provides base view classes which will suit a wide range of applications. All views inherit from the View class, which handles linking the view in to the URLs, HTTP method dispatching and other simple features. RedirectView is for a simple HTTP redirect, and TemplateView extends the base class to make it also render a template.
+
++ Class-based views provide an alternative way to implement views as Python objects instead of functions. They do not replace function-based views, but have certain differences and advantages when compared to function-based views:
+
+	++ Organization of code related to specific HTTP methods (GET, POST, etc.) can be addressed by separate methods instead of conditional branching.
+
+	++ Object oriented techniques such as mixins (multiple inheritance) can be used to factor code into reusable components.
+
+# USING CLASS BASED VIEWS
+
++ At its core, a class-based view allows you to respond to different HTTP request methods with different class instance methods, instead of with conditionally branching code inside a single view function.
+
+[[
+	from django.http import HttpResponse
+
+	def my_view(request):
+	    if request.method == 'GET':
+	        # <view logic>
+	        return HttpResponse('result')
+]]
+// becomes 
+[[
+	from django.http import HttpResponse
+	from django.views import View
+
+	class MyView(View):
+	    def get(self, request):
+	        # <view logic>
+	        return HttpResponse('result')
+]]
+
++ Because Django’s URL resolver expects to send the request and associated arguments to a callable function, not a class, class-based views have an as_view() class method which returns a function that can be called when a request arrives for a URL matching the associated pattern. The function creates an instance of the class, calls setup() to initialize its attributes, and then calls its dispatch() method. dispatch looks at the request to determine whether it is a GET, POST, etc, and relays the request to a matching method if one is defined, or raises HttpResponseNotAllowed if not
+
+[[
+	# urls.py
+	from django.urls import path
+	from myapp.views import MyView
+
+	urlpatterns = [
+	    path('about/', MyView.as_view()),
+	]
+]]
+
+# SETTING CLASS ATTRIBUTES
+
++ The first is the standard Python way of subclassing and overriding attributes and methods in the subclass.
+
+[[
+	class GreetingView(View):
+	    greeting = "Good Day"
+
+	    def get(self, request):
+	        return HttpResponse(self.greeting)
+
+	class MorningGreetingView(GreetingView):
+	    greeting = "Morning to ya"
+	// overrides the greeting object
+]]
+
++ Another option is to configure class attributes as keyword arguments to the as_view() call in the URLconf. Any arguments passed to as_view() will override attributes set on the class.
+
+
+[[
+	urlpatterns = [
+	    path('about/', GreetingView.as_view(greeting="G'day")),
+	]
+]]
+
+# USING MIXINS
+
++ Mixins are a form of multiple inheritance where behaviors and attributes of multiple parent classes can be combined.
+
++ For example, in the generic class-based views there is a mixin called TemplateResponseMixin whose primary purpose is to define the method render_to_response(). When combined with the behavior of the View base class, the result is a TemplateView class that will dispatch requests to the appropriate matching methods (a behavior defined in the View base class), and that has a render_to_response() method that uses a template_name attribute to return a TemplateResponse object (a behavior defined in the TemplateResponseMixin).
+
++ Note also that you can only inherit from one generic view - that is, only one parent class may inherit from View and the rest (if any) should be mixins
+
+# HANDLING FORMS
+
+[[
+	from .forms import MyForm
+
+	class MyFormView(View):
+	    form_class = MyForm
+	    initial = {'key': 'value'}
+	    template_name = 'form_template.html'
+
+	    def get(self, request, *args, **kwargs):
+	        form = self.form_class(initial=self.initial)
+	        return render(request, self.template_name, {'form': form})
+
+	    def post(self, request, *args, **kwargs):
+	        form = self.form_class(request.POST)
+	        if form.is_valid():
+	            # <process form cleaned data>
+	            return HttpResponseRedirect('/success/')
+
+	        return render(request, self.template_name, {'form': form})
+
+	// the get and post requests are standard methods that can be overridden to the users requirement
+
+	// you would then have the option of customizing this view by overriding any of the class attributes, e.g. form_class, via URLconf configuration, or subclassing and overriding one or more of the methods
+]]
+
+# DECORATING CLASS-BASED VIEWS
+
++ There are 2 ways of decorating a class-based views. They differ when you use as_view() or create a subclass.
+
+## DECORATING IN THE URLCONF
+
++ The simplest way of decorating class-based views is to decorate the result of the as_view() method. 
+
+[[
+	from django.contrib.auth.decorators import login_required, permission_required
+	from django.views.generic import TemplateView
+
+	from .views import VoteView
+
+	urlpatterns = [
+	    path('about/', login_required(TemplateView.as_view(template_name="secret.html"))),
+	    path('vote/', permission_required('polls.can_vote')(VoteView.as_view())),
+	]
+]]
+
++ This approach applies the decorator on a per-instance basis.
+
+## DECORATING THE CLASS
+
++ To decorate every instance of a class-based view, you need to decorate the class definition itself. To do this you apply the decorator to the dispatch() method of the class.
+
++ A method on a class isn’t quite the same as a standalone function, so you can’t just apply a function decorator to the method – you need to transform it into a method decorator first. The method_decorator decorator transforms a function decorator into a method decorator so that it can be used on an instance method
+
+[[
+	from django.contrib.auth.decorators import login_required
+	from django.utils.decorators import method_decorator
+	class ProtectedView(TemplateView):
+	    template_name = 'secret.html'
+
+	    @method_decorator(login_required)
+	    def dispatch(self, *args, **kwargs):
+	        return super().dispatch(*args, **kwargs)
+]]
+
++ Or, more succinctly, you can decorate the class instead and pass the name of the method to be decorated as the keyword argument name. If you have a set of common decorators used in several places, you can define a list or tuple of decorators and use this instead of invoking method_decorator() multiple times.
+
+[[
+	decorators = [never_cache, login_required]
+
+	@method_decorator(decorators, name='dispatch')
+	class ProtectedView(TemplateView):
+	    template_name = 'secret.html'
+	// equivalent to each other
+	@method_decorator(never_cache, name='dispatch')
+	@method_decorator(login_required, name='dispatch')
+	class ProtectedView(TemplateView):
+	    template_name = 'secret.html'
+
+// In this example, every instance of ProtectedView will have login protection. These examples use login_required, however, the same behavior can be obtained more simply using LoginRequiredMixin.
+
+]]
+
+# BUILT-IN CLASS-BASED GENERIC VIEWS
+
++ Generic views take certain views and abstract them which can be modified per use by subclassing to the user's preference easily. Taken together, these views provide easy interfaces to perform the most common tasks developers encounter. Rather than passing in a large amount of configuration in the URLconf, the recommended way to extend generic views is to subclass them, and override their attributes or methods.
+
++ That said, generic views will have a limit. If you find you’re struggling to implement your view as a subclass of a generic view, then you may find it more effective to write just the code you need, using your own class-based or functional views.
+
+[[	
+	// model
+	class Publisher(models.Model):
+	    name = models.CharField(max_length=30)
+	    address = models.CharField(max_length=50)
+	    city = models.CharField(max_length=60)
+	    state_province = models.CharField(max_length=30)
+	    country = models.CharField(max_length=50)
+	    website = models.URLField()
+	class Author(models.Model):
+	    salutation = models.CharField(max_length=10)
+	    name = models.CharField(max_length=200)
+	    email = models.EmailField()
+	    headshot = models.ImageField(upload_to='author_headshots')
+
+	    def __str__(self):
+	        return self.name
+
+	class Book(models.Model):
+	    title = models.CharField(max_length=100)
+	    authors = models.ManyToManyField('Author')
+	    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
+	    publication_date = models.DateField()
+
+	// views
+	from django.views.generic import ListView
+	from books.models import Publisher
+	class PublisherList(ListView):
+	    model = Publisher
+	// urls
+	from books.views import PublisherList
+
+	urlpatterns = [
+	    path('publishers/', PublisherList.as_view()),
+	]
+	// This uses a listview subclassed and the model attribute overrides the default in the parentclass and retrieves all objects in the model.
+	// We could explicitly tell the view which template to use by adding a template_name attribute to the view, but in the absence of an explicit template Django will infer one from the object’s name. In this case, the inferred template will be "books/publisher_list.html".
+	// template
+	{% extends "base.html" %}
+
+	{% block content %}
+	    <h2>Publishers</h2>
+	    <ul>
+	        {% for publisher in object_list %}
+	            <li>{{ publisher.name }}</li>
+	        {% endfor %}
+	    </ul>
+	{% endblock %}
+]]
+
++ The template will be rendered against a context containing a variable called 'object_list' that contains all the model objects. You can also use the name 'modelnameseparatedbyunderscoresbetweencapitalwords'. You can also manually set it by overriding the 'context_object_name' attribute.
+
++ If you need to present a detailed view of a particular object, the detailview generic view comes into help. You can override the 'get_context_data' method in the detailview to add additional information to the context. 
+
+[[
+	from books.models import Book, Publisher
+
+	class PublisherDetail(DetailView):
+
+	    model = Publisher
+
+	    def get_context_data(self, **kwargs):
+	        // Call the base implementation first to get a context
+	        context = super().get_context_data(**kwargs)
+	        // Add in a QuerySet of all the books
+	        context['book_list'] = Book.objects.all()
+	        return context
+
+	// for the detailview, the queryset object is stored in the context['object'] key and any other information passed is stored in the created key name. The context serves as the render-dictionary and can be used while templating.
+]]
+
++ The model argument specifies the database model that the view will operate upon and queries all the objects. If you want to work on a set of objects you can define a queryset argument. If you specify the queryset argument, you dont have to specify the model argument. 
+
+[[
+	class PublisherDetail(DetailView):
+
+	    context_object_name = 'publisher'
+	    queryset = Publisher.objects.all()
+
+	class BookList(ListView):
+	    queryset = Book.objects.order_by('-publication_date')
+	    context_object_name = 'book_list'
+
+	class AcmeBookList(ListView):
+
+	    context_object_name = 'book_list'
+	    queryset = Book.objects.filter(publisher__name='ACME Publishing')
+	    template_name = 'books/acme_list.html'
+]]
+
++ The queryset attribute is useful if you want to collect static object groups but when it comes to filtering the querysets tend to use dynamic variables which are passed through the urlconf. To use them we can redefine the get_queryset() method. By default it returns the queryset object. While redefining you should return the specified queryset and the dynamic variables are passed through the kwargs. 
+
++ The key part to making this work is that when class-based views are called, various useful things are stored on self; as well as the request (self.request) this includes the positional (self.args) and name-based (self.kwargs) arguments captured according to the URLconf.
+
+[[
+	// urls 
+	from django.urls import path
+	from books.views import PublisherBookList
+
+	urlpatterns = [
+	    path('books/<publisher>/', PublisherBookList.as_view()),
+	]
+
+	// views
+	class PublisherBookList(ListView):
+
+	    template_name = 'books/books_by_publisher.html'
+
+	    def get_queryset(self):
+	        self.publisher = get_object_or_404(Publisher, name=self.kwargs['publisher'])
+	        return Book.objects.filter(publisher=self.publisher)
+
+	// the get_queryset() is called before the get_context_data() so any attributes created can be passed into the context. 
+
+		def get_context_data(self, **kwargs):
+		    // Call the base implementation first to get a context
+		    context = super().get_context_data(**kwargs)
+		    // Add in the publisher
+		    context['publisher'] = self.publisher
+		    return context
+]]
+
+# BASE VIEWS
+
++ The following three classes provide much of the functionality needed to create Django views. You may think of them as parent views, which can be used by themselves or inherited from. They may not provide all the capabilities required for projects, in which case there are Mixins and Generic class-based views.
+
+## VIEW
+
++ The master class-based base view. All other class-based views inherit from this base class. It isn’t strictly a generic view and thus can also be imported from django.views.
+
++ flowchart :
+
+	setup()
+	dispatch()
+	http_method_not_allowed()
+	options()
+
++ attributes : 
+
+	http_method_names 
+
+		++ The list of HTTP method names that this view will accept. default value is ['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'trace']
+
++ methods :
+
+	setup(request, *args, **kwargs)
+
+		++ Initializes view instance attributes: self.request, self.args, and self.kwargs prior to dispatch().
+
+		++ Overriding this method allows mixins to setup instance attributes for reuse in child classes. When overriding this method, you must call super().
+
+	dispatch(request, *args, **kwargs)
+
+		++ The default implementation will inspect the HTTP method and attempt to delegate to a method that matches the HTTP method; a GET will be delegated to get(), a POST to post(), and so on.
+
+	http_method_not_allowed(request, *args, **kwargs)
+
+		++ If the view was called with a HTTP method it doesn’t support, this method is called instead.
+
+[[
+	from django.http import HttpResponse
+	from django.views import View
+
+	class MyView(View):
+
+	    def get(self, request, *args, **kwargs):
+	        return HttpResponse('Hello, World!')
+]]
+
+## TEMPLATEVIEW
+
++ Renders a given template, with the context containing parameters captured in the URL.
+
+ancestors :
+
+	TemplateResponseMixin
+	ContextMixin
+	View
+
+flowchart: 
+
+	setup()
+	dispatch()
+	http_method_not_allowed()
+	get_context_data()
+
+[[
+	from django.views.generic.base import TemplateView
+
+	from articles.models import Article
+
+	class HomePageView(TemplateView):
+
+	    template_name = "home.html"
+
+	    def get_context_data(self, **kwargs):
+	        context = super().get_context_data(**kwargs)
+	        context['latest_articles'] = Article.objects.all()[:5]
+	        return context
+]]
+
+## REDIRECTVIEW
+
++ Redirects to a given URL.
+
+ancestors :
+
+	View
+
+flowchart : 
+
+	setup()
+	dispatch()
+	http_method_not_allowed()
+	get_redirect_url()
+
+methods :
+
+	get_redirect_url(*args, **kwargs)
+
+		++ Constructs the target URL for redirection.
+
+		++ The default implementation uses url as a starting string and performs expansion of % named parameters in that string using the named groups captured in the URL.
+
+		++ If url is not set, get_redirect_url() tries to reverse the pattern_name using what was captured in the URL (both named and unnamed groups are used).
+
+		++ If requested by query_string, it will also append the query string to the generated URL. Subclasses may implement any behavior they wish, as long as the method returns a redirect-ready URL string.
+
+attributes : 
+
+	url 
+
+		++ The URL to redirect to, as a string. Or None to raise a 410 (Gone) HTTP error.
+
+	pattern_name
+
+		++ The name of the URL pattern to redirect to. Reversing will be done using the same args and kwargs as are passed in for this view.
+
+	permanent 
+
+		++ Whether the redirect should be permanent. The only difference here is the HTTP status code returned. If True, then the redirect will use status code 301. If False, then the redirect will use status code 302. By default, permanent is False.
+
+	query_string
+
+		++ Whether to pass along the GET query string to the new location. If True, then the query string is appended to the URL. If False, then the query string is discarded. By default, query_string is False. 
+
+# GENERIC DISPLAY VIEWS
+
+## DETAILVIEW
+
++ While this view is executing, self.object will contain the object that the view is operating upon.
+
++ flowchart :
+
+	setup()
+	dispatch()
+	http_method_not_allowed()
+	get_template_names()
+	get_slug_field()
+	get_queryset()
+	get_object()
+	get_context_object_name()
+	get_context_data()
+	get()
+	render_to_response()
+
+### setup(request, *args, **kwargs)
+
++ Initializes view instance attributes: self.request, self.args, and self.kwargs prior to dispatch().
+
++ Overriding this method allows mixins to setup instance attributes for reuse in child classes. When overriding this method, you must call super().
+
+[[
+	def setup(self,request,*args,**kwargs):
+		super().setup(*args,**kwargs)
+		self.property1=value1
+		self.property2=value2
+]]
+
+### dispatch(request, *args, **kwargs)
+
++ The default implementation will inspect the HTTP method and attempt to delegate to a method that matches the HTTP method; a GET will be delegated to get(), a POST to post(), and so on.
+
++ By default, a HEAD request will be delegated to get(). If you need to handle HEAD requests in a different way than GET, you can override the head() method.
+
+### http_method_not_allowed(request, *args, **kwargs)
+
++ If the view was called with a HTTP method it doesn’t support, this method is called instead.
+
++ The default implementation returns HttpResponseNotAllowed with a list of allowed methods in plain text.
+
+### get_template_names()
+
++ returns a list of template names that are to be searched while rendering. The first template that is found is used. If 'template_name' is pecified, the default implementation will return a list containing 'template_name'.
+
+[[
+	def get_template_name(self):
+		return ['book_list.html','books.html','blist.html']
+]]
+
+### get_queryset()
+
++ Should return the queryset that will be used to retrieve the object. If the 'queryset' attribute is set that is used else it calls an all() on the model and returns it. The queryset is sent to the get_object() method. 
+
+[[
+	def get_queryset(self):
+	    self.publisher = get_object_or_404(Publisher, name=self.kwargs['publisher'])
+	    return Book.objects.filter(publisher=self.publisher)
+]]
+
+### get_object(queryset=None)
+
++ Returns the single object that this view will display. If queryset is provided, that queryset will be used as the source of objects; otherwise, get_queryset() will be used.
+
++ Looks for a 'pk_url_kwarg' attribute and perfoms a get() filter on the queryset with a primary-key based lookup to get the object. The default name used is 'pk' so if the primary-key is different, assign it to the 'pk_url_kwarg'.
+
++ If any modifications are to be done to the object they can be done here as well for example 
+
+[[
+	// urls
+	urlpatterns = [
+	    path('authors/<int:pk>/', AuthorDetailView.as_view(), name='author-detail'),
+	]
+	// views 
+	def get_object(self):
+	    obj = super().get_object()
+	    // Record the last accessed date
+	    obj.last_accessed = timezone.now()
+	    obj.save()
+	    return obj
+
+]]
+
+### get_context_object_name(obj)
+
++ Return the context variable name that will be used to contain the data that this view is manipulating. If 'context_object_name' is not set, the context name will be constructed from the model_name of the model that the queryset is composed from. For example, the model Article would have context object named 'article'.
+
+### get_context_data(**kwargs)
+
++ Returns context data for displaying the object. The base implementation of this method requires that the self.object attribute be set by the view. 
+
++ It returns a dictionary with these contents:
+
+	object: The object that this view is displaying (self.object).
+
+	context_object_name: self.object will also be stored under the name returned by get_context_object_name(), which defaults to the lowercased version of the model name.
+
+[[
+	def get_context_data(self, **kwargs):
+	    // Call the base implementation first to get a context
+	    context = super().get_context_data(**kwargs)
+	    // Add in the publisher
+	    context['publisher'] = self.publisher
+	    return context
+]]
+
+### render_to_response(context, **response_kwargs)
+
++ Returns a self.response_class instance. Calls get_template_names() to obtain the list of template names that will be searched looking for an existent template.
+
+## LISTVIEW
+
++ While this view is executing, self.object_list will contain the list of objects (usually, but not necessarily a queryset) that the view is operating upon.
+
++ flowchart : 
+
+	setup()
+	dispatch()
+	http_method_not_allowed()
+	get_template_names()
+	get_queryset()
+	get_context_object_name()
+	get_context_data()
+	get()
+	render_to_response()
+
+// no elucidation required
+
+# GENERIC FORM HANDLING AND GENERIC EDITING VIEWS
+
+## SUBCLASSING FORMVIEW
+
+attributes :
+
+	content_type
+	extra_context
+	form_class [get_form_class()]
+	http_method_names
+	initial [get_initial()]
+	prefix [get_prefix()]
+	response_class [render_to_response()]
+	success_url [get_success_url()]
+	template_engine
+	template_name [get_template_names()]
+
+methods : 
+
+	as_view()
+	dispatch()
+	form_invalid()
+	form_valid()
+	get()
+	get_context_data()
+	get_form()
+	get_form_kwargs()
+	http_method_not_allowed()
+	post()
+	put()
+	setup()
+
+[[
+	// forms
+	class ContactForm(forms.Form):
+	    name = forms.CharField()
+	    message = forms.CharField(widget=forms.Textarea)
+
+	    def send_email(self):
+	        // send email using the self.cleaned_data dictionary
+	        pass
+	// views
+	class ContactView(FormView):
+	    template_name = 'contact.html'
+	    form_class = ContactForm
+	    success_url = '/thanks/'
+
+	    def form_valid(self, form):
+	        // This method is called when valid form data has been POSTed.
+	        // It should return an HttpResponse.
+	        // perform database modification here too
+	        form.send_email()
+	        return super().form_valid(form)
+
+	// the form_valid() validates the form and returns a httpresponse to the success_url
+]] 
+
+## MODEL FORMS
+
++ Generic views really shine when working with models. These generic views will automatically create a ModelForm:
+
+	
+	++ If the model attribute is given, that model class will be used.
+	++ If get_object() returns an object, the class of that object will be used.
+	++ If a queryset is given, the model for that queryset will be used.
+
++ Model form views provide a form_valid() implementation that saves the model automatically. You can override this if you have any special requirements
+
++ You don’t even need to provide a success_url for CreateView or UpdateView - they will use get_absolute_url() on the model object if available. The get_absolute_url() works like this
+
+	++ Define a get_absolute_url() method to tell Django how to calculate the canonical URL for an object. To callers, this method should appear to return a string that can be used to refer to the object over HTTP.
+
+	[[
+		//model definition...
+		def get_absolute_url(self):
+		    return "/people/%i/" % self.id
+		// or
+		def get_absolute_url(self):
+		    from django.urls import reverse
+		    return reverse('people.views.details', args=[str(self.id)])
+	]]
+
++ If you want to use a custom ModelForm (for instance to add extra validation) simply set form_class on your view.
+
+[[
+	// models
+	class Author(models.Model):
+	    name = models.CharField(max_length=200)
+
+	    def get_absolute_url(self):
+	        return reverse('author-detail', kwargs={'pk': self.pk})
+	// views
+	class AuthorCreate(CreateView):
+	    model = Author
+	    fields = ['name']
+
+	class AuthorUpdate(UpdateView):
+	    model = Author
+	    fields = ['name']
+
+	class AuthorDelete(DeleteView):
+	    model = Author
+	    success_url = reverse_lazy('author-list')
+	// urls
+	urlpatterns = [
+	    path('author/add/', AuthorCreate.as_view(), name='author-add'),
+	    path('author/<int:pk>/', AuthorUpdate.as_view(), name='author-update'),
+	    path('author/<int:pk>/delete/', AuthorDelete.as_view(), name='author-delete'),
+	]
+	// author_form.html
+	<form method="post">{% csrf_token %}
+	    {{ form.as_p }}
+	    <input type="submit" value="Save">
+	</form>
+]]
+
+### CREATEVIEW
+
++ A view that displays a form for creating an object, redisplaying the form with validation errors (if there are any) and saving the object.
+
++ The default template rendered is the model name suffixed with an '_form' to change the suffix override the attribute 'template_name_suffix'.
+
++ When using CreateView you have access to self.object, which is the object being created. If the object hasn’t been created yet, the value will be None.
+
+Attributes (with optional accessor):
+
+	content_type
+	context_object_name [get_context_object_name()]
+	extra_context
+	fields
+	form_class [get_form_class()]
+	http_method_names
+	initial [get_initial()]
+	model
+	pk_url_kwarg
+	prefix [get_prefix()]
+	queryset [get_queryset()]
+	response_class [render_to_response()]
+	slug_field [get_slug_field()]
+	slug_url_kwarg
+	success_url [get_success_url()]
+	template_engine
+	template_name [get_template_names()]
+	template_name_field
+	template_name_suffix
+
+* fields - 
+
+	+ A list of names of fields. This is interpreted the same way as the Meta.fields attribute of ModelForm.
+
+	+ This is a required attribute if you are generating the form class automatically (e.g. using model). Omitting this attribute will result in an ImproperlyConfigured exception.
+
+* form_class - 
+
+	+ Retrieve the form class to instantiate. If form_class is provided, that class will be used. Otherwise, a ModelForm will be instantiated using the model associated with the queryset, or with the model, depending on which attribute is provided.
+
+* initial - 
+
+	+ A dictionary containing initial data for the form or return a copy of initial from the form if specified. 
+
+Methods : 
+
+	as_view()
+	dispatch()
+	form_invalid()
+	form_valid()
+	get()
+	get_context_data()
+	get_form()
+	get_form_kwargs()
+	get_object()
+	head()
+	http_method_not_allowed()
+	post()
+	put()
+	render_to_response()
+	setup()
+
+* form_valid(form) - 
+
+	+ Saves the form instance, sets the current object for the view, and redirects to get_success_url().
+
+* get(request, *args, **kwargs) - 
+
+	+ Renders a response using a context created with get_context_data().
+
+* get_context_data(**kwargs) - 
+
+	+ Calls get_form() and adds the result to the context data with the name ‘form’.
+
+* get_form(form_class=None) - 
+
+	+ Instantiate an instance of form_class using get_form_kwargs(). If form_class isn’t provided get_form_class() will be used.
+
+* get_form_kwargs() -  
+
+	+ Build the keyword arguments required to instantiate the form. The initial argument is set to get_initial(). If the request is a POST or PUT, the request data (request.POST and request.FILES) will also be provided.
+
+### UPDATEVIEW
+
++ A view that displays a form for editing an existing object, redisplaying the form with validation errors (if there are any) and saving changes to the object. This uses a form automatically generated from the object’s model class (unless a form class is manually specified).
+
++ It takes a 'pk' kwargs argument and gets the corresponding object. 
+
+Attributes (with optional accessor):
+
+	content_type
+	context_object_name [get_context_object_name()]
+	extra_context
+	fields
+	form_class [get_form_class()]
+	http_method_names
+	initial [get_initial()]
+	model
+	pk_url_kwarg
+	prefix [get_prefix()]
+	queryset [get_queryset()]
+	response_class [render_to_response()]
+	slug_field [get_slug_field()]
+	slug_url_kwarg
+	success_url [get_success_url()]
+	template_engine
+	template_name [get_template_names()]
+	template_name_field
+	template_name_suffix
+
+Methods
+
+	as_view()
+	dispatch()
+	form_invalid()
+	form_valid()
+	get()
+	get_context_data()
+	get_form()
+	get_form_kwargs()
+	get_object()
+	head()
+	http_method_not_allowed()
+	post()
+	put()
+	render_to_response()
+	setup()
+
+[[
+	class AuthorUpdate(UpdateView):
+	    model = Author
+	    fields = ['name']
+	    template_name_suffix = '_update_form'
+	
+	// author_update_form.html:
+
+	<form method="post">{% csrf_token %}
+	    {{ form.as_p }}
+	    <input type="submit" value="Update">
+	</form>
+
+	// urls
+
+	path('author/<int:pk>/', AuthorUpdate.as_view(), name='author-update')
+]]
+
+### DELETEVIEW
+
++ A view that displays a confirmation page and deletes an existing object. The given object will only be deleted if the request method is POST. If this view is fetched via GET, it will display a confirmation page that should contain a form that POSTs to the same URL.
+
++ It takes a 'pk' kwargs argument and gets the corresponding object. 
+
+[[
+	class AuthorDelete(DeleteView):
+	    model = Author
+	    success_url = reverse_lazy('author-list')
+
+	<form method="post">{% csrf_token %}
+	    <p>Are you sure you want to delete "{{ object }}"?</p>
+	    <input type="submit" value="Confirm">
+	</form>
+
+	// urlpattern
+
+	path('author/<int:pk>/delete/', AuthorDelete.as_view(), name='author-delete')
+]]
+
+## MODELS AND request.user
+
+[[
+	class Author(models.Model):
+	    name = models.CharField(max_length=200)
+	    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
+	// In the view, ensure that you don’t include created_by in the list of fields to edit, and override form_valid() to add the user
+
+	class AuthorCreate(LoginRequiredMixin, CreateView):
+	    model = Author
+	    fields = ['name']
+
+	    def form_valid(self, form):
+	        form.instance.created_by = self.request.user
+	        return super().form_valid(form)
+
+	// LoginRequiredMixin prevents users who aren’t logged in from accessing the form. If you omit that, you’ll need to handle unauthorized users in form_valid().
+]]
+
+# USING MIXINS WITH CLASS-BASED VIEWS
+
++ Mixins are added to class-based views to extend their functionality. They have to be inherited/subclassed to use them. 
+
++ The two central mixins are the 'TemplateResponseMixin' and 'ContextMixin'.
+
+1. TemplateResponseMixin 
+
+	++ Every built in view which returns a TemplateResponse will call the render_to_response() method that TemplateResponseMixin provides. Most of the time this will be called for you (for instance, it is called by the get() method implemented by both TemplateView and DetailView); similarly, it’s unlikely that you’ll need to override it, although if you want your response to return something not rendered via a Django template then you’ll want to do it.
+
+	++ render_to_response() itself calls get_template_names(), which by default will just look up template_name on the class-based view; two other mixins (SingleObjectTemplateResponseMixin and MultipleObjectTemplateResponseMixin) override this to provide more flexible defaults when dealing with actual objects.
+
+2. ContextMixin
+
+	++ Every built in view which needs context data, such as for rendering a template (including TemplateResponseMixin above), should call get_context_data() passing any data they want to ensure is in there as keyword arguments. get_context_data() returns a dictionary; in ContextMixin it simply returns its keyword arguments, but it is common to override this to add more members to the dictionary. You can also use the extra_context attribute.
+
++ The generic display and edit views use mixins as well. 
+
+1. DetailView 
+
+	++ To show the detail of an object, we basically need to do two things: we need to look up the object and then we need to make a TemplateResponse with a suitable template, and that object as context.
+
+	++ To get the object, DetailView relies on SingleObjectMixin, which provides a get_object() method that figures out the object based on the URL of the request (it looks for pk and slug keyword arguments as declared in the URLConf, and looks the object up either from the model attribute on the view, or the queryset attribute if that’s provided). SingleObjectMixin also overrides get_context_data(), which is used across all Django’s built in class-based views to supply context data for template renders.
+
+	++ To then make a TemplateResponse, DetailView uses SingleObjectTemplateResponseMixin, which extends TemplateResponseMixin, overriding get_template_names() as discussed above. It actually provides a fairly sophisticated set of options, but the main one that most people are going to use is <app_label>/<model_name>_detail.html. The _detail part can be changed by setting template_name_suffix on a subclass to something else
+
+2. ListView
+
+	++ Lists of objects follow roughly the same pattern: we need a (possibly paginated) list of objects, typically a QuerySet, and then we need to make a TemplateResponse with a suitable template using that list of objects.
+
+	++ To get the objects, ListView uses MultipleObjectMixin, which provides both get_queryset() and paginate_queryset(). Unlike with SingleObjectMixin, there’s no need to key off parts of the URL to figure out the queryset to work with, so the default just uses the queryset or model attribute on the view class. A common reason to override get_queryset() here would be to dynamically vary the objects, such as depending on the current user or to exclude posts in the future for a blog.
+
+	++ MultipleObjectMixin also overrides get_context_data() to include appropriate context variables for pagination (providing dummies if pagination is disabled). It relies on object_list being passed in as a keyword argument, which ListView arranges for it.
+
+	++ To make a TemplateResponse, ListView then uses MultipleObjectTemplateResponseMixin; as with SingleObjectTemplateResponseMixin above, this overrides get_template_names() to provide a range of options, with the most commonly-used being <app_label>/<model_name>_list.html, with the _list part again being taken from the template_name_suffix attribute.
+
+## object mixins
+
+1. SingleObjectMixin 
+
+attributes : 
+
+	model
+	queryset
+	pk_url_kwarg
+	context_object_name
+
+methods : 
+
+	get_object(queryset=None)
+
+		++ Returns the single object that this view will display. If queryset is provided, that queryset will be used as the source of objects; otherwise, get_queryset() will be used. get_object() looks for a pk_url_kwarg argument in the arguments to the view; if this argument is found, this method performs a primary-key based lookup using that value.
+
+	get_queryset()
+
+		++ Returns the queryset that will be used to retrieve the object that this view will display. By default, get_queryset() returns the value of the queryset attribute if it is set, otherwise it constructs a QuerySet by calling the all() method on the model attribute’s default manager.
+
+	get_context_object_name(obj)
+
+		++ Return the context variable name that will be used to contain the data that this view is manipulating. If context_object_name is not set, the context name will be constructed from the model_name of the model that the queryset is composed from. For example, the model Article would have context object named 'article'.
+
+	get_context_data(**kwargs)
+
+		++ Returns context data for displaying the object.
+
+		++ The base implementation of this method requires that the self.object attribute be set by the view (even if None). Be sure to do this if you are using this mixin without one of the built-in views that does so.
+
+## Using SingleObjectMixin with View
+
++ If we want to write a simple class-based view that responds only to POST, we’ll subclass View and write a post() method in the subclass. However if we want our processing to work on a particular object, identified from the URL, we’ll want the functionality provided by SingleObjectMixin.
+
+[[
+	class RecordInterest(SingleObjectMixin, View):
+	    """Records the current user's interest in an author."""
+	    model = Author
+
+	    def post(self, request, *args, **kwargs):
+	        if not request.user.is_authenticated:
+	            return HttpResponseForbidden()
+
+	        # Look up the author we're interested in.
+	        self.object = self.get_object()
+	        # Actually record interest somehow here!
+
+	        return HttpResponseRedirect(reverse('author-detail', kwargs={'pk': self.object.pk}))
+]]
+
+## Using SingleObjectMixin with ListView
+
+[[
+	class PublisherDetail(SingleObjectMixin, ListView):
+	    paginate_by = 2
+	    template_name = "books/publisher_detail.html"
+
+	    def get(self, request, *args, **kwargs):
+	        self.object = self.get_object(queryset=Publisher.objects.all())
+	        return super().get(request, *args, **kwargs)
+
+	    def get_context_data(self, **kwargs):
+	        context = super().get_context_data(**kwargs)
+	        context['publisher'] = self.object
+	        return context
+
+	    def get_queryset(self):
+	        return self.object.book_set.all()
+
+	// order is get(),get_queryset(),get_context_data()1
+]]
+
+2. MultipleObjectMixin
+
++ A mixin that can be used to display a list of objects. It extends ContextMixin. If paginate_by is specified, Django will paginate the results returned by this. You can specify the page number in the URL in one of two ways. The first is by using a page parameter and the other is by a query-string parameter. 'paginate-by' is the max number of items to display at a time. As a special case, you are also permitted to use last as a value for page:
+
+[[
+	path('objects/page<int:page>/', PaginatedView.as_view())
+
+	//or
+
+	.../objects/?page=3
+]]
+
+attributes :
+
+	allow_empty 
+
+		++ A boolean specifying whether to display the page if no objects are available. If this is False and no objects are available, the view will raise a 404 instead of displaying an empty page. By default, this is True.
+
+	model
+	queryset
+	paginate_by
+	ordering
+
+		++ A string or list of strings specifying the ordering to apply to the queryset. Valid values are the same as those for order_by().
+
+	context_object_name
+
+methods :
+
+	get_queryset()
+	get_ordering()
+	paginate_queryset(queryset, page_size)
+
+		++ Returns a 4-tuple containing (paginator, page, object_list, is_paginated).
+
+	get_paginate_by(queryset)
+
+		++ Returns the number of items to paginate by, or None for no pagination. By default this simply returns the value of paginate_by.
+
+	get_paginator(queryset, per_page, orphans=0, allow_empty_first_page=True)
+
+		++ Returns an instance of the paginator to use for this view.
+
+	get_context_data(**kwargs)
+
+context : 
+
+	object_list
+	is_paginated
+	paginator
+	page_obj
+
+## EDITING MIXINS
+
+1. FormMixin
+
+mixins : 
+
+	ContextMixin
+
+attributes :
+
+	intial
+	form_class
+	success_url
+	prefix
+
+methods : 
+
+	get_inital()
+
+		++ Retrieve initial data for the form. By default, returns a copy of initial.
+
+	get_form_class()
+	get_form(form_class=None)
+
+		++ Instantiate an instance of form_class using get_form_kwargs(). If form_class isn’t provided get_form_class() will be used.
+
+	get_success_url()
+	form_valid(form)
+
+		++ Redirects to get_success_url().
+
+	form_invalid(form)
+
+		++ Renders a response, providing the invalid form as context.
+
+	get_context_data(**kwargs)
+
+		++ Calls get_form() and adds the result to the context data with the name ‘form’.
+
+2. ModelFormMixin
+
++ A form mixin that works on ModelForms, rather than a standalone form.
+
++ Since this is a subclass of SingleObjectMixin, instances of this mixin have access to the model and queryset attributes, describing the type of object that the ModelForm is manipulating.
+
+mixins : 
+
+	FormMixin
+	SingleObjectMixin
+
+attributes :
+
+	model
+	fields
+	success_url
+
+methods : 
+
+	get_form_class()
+	get_form_kwargs()
+	get_success_url()
+	form_valid(form)
+	form_invalid(form)
+
+3. ProcessFormView
+
++ A mixin that provides basic HTTP GET and POST workflow. It extends basic View 
+
+methods : 
+
+	get(request, *args, **kwargs)
+
+		++ Renders a response using a context created with get_context_data().
+
+	post(request, *args, **kwargs)
+
+		++ Constructs a form, checks the form for validity, and handles it accordingly.
+
+4. DeletionMixin
+
++ Enables handling of the DELETE http action.
+
+attributes and methods :
+
+	success_url
+	delete(request, *args, **kwargs)
+
+		++ Retrieves the target object and calls its delete() method, then redirects to the success URL.
+
+	get_success_url()
+
+# MORE COMLPEX CASES
+
++ Each of your views should use only mixins or views from one of the groups of generic class-based views: detail, list, editing and date. For example it’s fine to combine TemplateView (built in view) with MultipleObjectMixin (generic list), but you’re likely to have problems combining SingleObjectMixin (generic detail) with MultipleObjectMixin (generic list).
+
+## Using FormMixin with DetailView
+
++ we can combine DetailView with FormMixin to enable us to POST a Django Form to the same URL as we’re displaying an object using DetailView.
+
++ We’ll keep the GET handling from DetailView, although we’ll have to add a Form into the context data so we can render it in the template. We’ll also want to pull in form processing from FormMixin, and write a bit of code so that on POST the form gets called appropriately.
+
+[[
+	class AuthorInterestForm(forms.Form):
+	    message = forms.CharField()
+
+	class AuthorDetail(FormMixin, DetailView):
+	    model = Author
+	    form_class = AuthorInterestForm
+
+	    def get_success_url(self):
+	        return reverse('author-detail', kwargs={'pk': self.object.pk})
+
+	    def get_context_data(self, **kwargs):
+	        context = super().get_context_data(**kwargs)
+	        context['form'] = self.get_form()
+	        return context
+
+	    def post(self, request, *args, **kwargs):
+	        if not request.user.is_authenticated:
+	            return HttpResponseForbidden()
+	        self.object = self.get_object()
+	        form = self.get_form()
+	        if form.is_valid():
+	            return self.form_valid(form)
+	        else:
+	            return self.form_invalid(form)
+
+	    def form_valid(self, form):
+	        # Here, we would record the user's interest using the message
+	        # passed in form.cleaned_data['message']
+	        return super().form_valid(form)
+]]
+
++ Things get complicated easily and its hard to manage. It would be better to have a separate view for processing the form, which could use FormView distinct from DetailView without concerns. GET requests should get the DetailView (with the Form added to the context data), and POST requests should get the FormView.
+
+[[
+	class AuthorInterestForm(forms.Form):
+	    message = forms.CharField()
+
+	class AuthorDisplay(DetailView):
+	    model = Author
+
+	    def get_context_data(self, **kwargs):
+	        context = super().get_context_data(**kwargs)
+	        context['form'] = AuthorInterestForm()
+	        return context
+
+	class AuthorInterest(SingleObjectMixin, FormView):
+	    template_name = 'books/author_detail.html'
+	    form_class = AuthorInterestForm
+	    model = Author
+
+	    def post(self, request, *args, **kwargs):
+	        if not request.user.is_authenticated:
+	            return HttpResponseForbidden()
+	        // for self.object.pk
+	        self.object = self.get_object()
+	        // pass form
+	        return super().post(request, *args, **kwargs)
+
+	    def get_success_url(self):
+	        return reverse('author-detail', kwargs={'pk': self.object.pk})
+
+	    class AuthorDetail(View):
+
+	        def get(self, request, *args, **kwargs):
+	            view = AuthorDisplay.as_view()
+	            return view(request, *args, **kwargs)
+
+	        def post(self, request, *args, **kwargs):
+	            view = AuthorInterest.as_view()
+	            return view(request, *args, **kwargs)
+
+]]
+
++ Calling as_view() on a class-based view gives us something that behaves exactly like a function based view, so we can do that at the point we choose between the two subviews.

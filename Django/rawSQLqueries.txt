@@ -1,0 +1,133 @@
+# PERFORM RAW QUERIES AND RETURN MODEL INSTANCES
+
++ The raw() manager method can be used to perform raw SQL queries that return model instances:
+
+	Manager.raw(raw_query, params=None, translations=None)¶
+
++ This method takes a raw SQL query, executes it, and returns a django.db.models.query.RawQuerySet instance. This RawQuerySet instance can be iterated over just like a normal QuerySet to provide object instances.
+
++ While issuing queries, fields can be left out. There is only one field that you can’t leave out - the primary key field. Django uses the primary key to identify model instances, so it must always be included in a raw query. An InvalidQuery exception will be raised if you forget to include the primary key.
+
+[[
+	class Person(models.Model):
+	    first_name = models.CharField()
+	    last_name = models.CharField()
+	    birth_date = models.DateField()
+
+	// tables are stored as appname_modelname
+
+	>>> person = Person.objects.raw('SELECT * FROM myapp_person'):
+	>>> for row in person :
+			print(row.first_name,row.last_name)
+]]
+
++ No checking is done on the SQL statement that is passed in to .raw(). Django expects that the statement will return a set of rows from the database, but does nothing to enforce that. If the query does not return rows, a (possibly cryptic) error will result.
+
++ raw() automatically maps fields in the query to fields on the model. The order of fields in your query doesn’t matter. Matching is done by name. This means that you can use SQL’s AS clauses to map fields in the query to model fields. As long as the names match, the model instances will be created correctly. Alternatively, you can map fields in the query to model fields using the translations argument to raw(). This is a dictionary mapping names of fields in the query to names of fields on the model. Fields may also be left out.
+
+[[
+	>>> Person.objects.raw('''SELECT first AS first_name,
+	...                              last AS last_name,
+	...                              bd AS birth_date,
+	...                              pk AS id,
+	...                       FROM some_other_table''')
+
+	// or
+
+	>>> name_map = {'first': 'first_name', 'last': 'last_name', 'bd': 'birth_date', 'pk': 'id'}
+	>>> Person.objects.raw('SELECT * FROM some_other_table', translations=name_map)
+
+]]
+
++ raw() supports indexing so the resultant dataset can be spliced and indexed. 
+
+[[
+	>>> first_person = Person.objects.raw('SELECT * FROM myapp_person')[0]
+	// for queries that return a large number of rows, it's better to splice at the SQL level. 
+	>>> first_person = Person.objects.raw('SELECT * FROM myapp_person LIMIT 1')[0]
+]]
+
++ You can also execute queries containing fields that aren’t defined on the model. 
+
+[[
+	// using PostgreSQL’s age() function to get a list of people with their ages calculated by the database
+	>>> people = Person.objects.raw('SELECT *, age(birth_date) AS age FROM myapp_person')
+	>>> for p in people:
+	...     print("%s is %s." % (p.first_name, p.age))
+]]
+
++ If you need to perform parameterized queries, you can use the params argument to raw(). params is a list or dictionary of parameters. You’ll use %s placeholders in the query string for a list, or %(key)s placeholders for a dictionary (where key is replaced by a dictionary key, of course), regardless of your database engine. Such placeholders will be replaced with parameters from the params argument. Dictionary params are not supported with the SQLite backend; with this backend, you must pass parameters as a list.
+
+[[
+	>>> lname = 'Doe'
+	>>> Person.objects.raw('SELECT * FROM myapp_person WHERE last_name = %s', [lname])
+]]
+
+# EXECUTING CUSTOM SQL DIRECTLY
+
++ Sometimes even Manager.raw() isn’t quite enough: you might need to perform queries that don’t map cleanly to models, or directly execute UPDATE, INSERT, or DELETE queries. In these cases, you can always access the database directly, routing around the model layer entirely.
+
++ The object django.db.connection represents the default database connection. To use the database connection, call connection.cursor() to get a cursor object. Then, call cursor.execute(sql, [params]) to execute the SQL and cursor.fetchone() or cursor.fetchall() to return the resulting rows.
+
+[[
+	with connection.cursor() as c:
+	    c.execute(...)
+
+	// equivalent to 
+
+	c = connection.cursor()
+	try:
+	    c.execute(...)
+	finally:
+	    c.close()
+]]
+
+[[
+	from django.db import connection
+
+	def my_custom_sql(self):
+	    with connection.cursor() as cursor:
+	        cursor.execute("UPDATE bar SET foo = 1 WHERE baz = %s", [self.baz])
+	        cursor.execute("SELECT foo FROM bar WHERE baz = %s", [self.baz])
+	        row = cursor.fetchone()
+	    return row
+
+	// To protect against SQL injection, you must not include quotes around the %s placeholders in the SQL string.
+	// if you want to include literal percent signs in the query, you have to double them in the case you are passing parameters
+]]
+
++ If you are using more than one database, you can use django.db.connections to obtain the connection (and cursor) for a specific database. django.db.connections is a dictionary-like object that allows you to retrieve a specific connection using its alias
+
+[[
+	from django.db import connections
+	with connections['my_db_alias'].cursor() as cursor:
+		// code
+]]
+
++ By default, the Python DB API upon fetching a cursor will return results without their field names, which means you end up with a list of values, rather than a dict. You can convert into a dictionary like below
+
+[[
+	def dictfetchall(cursor):
+	     // Return all rows from a cursor as a dict
+	    columns = [col[0] for col in cursor.description]
+	    return [
+	        dict(zip(columns, row))
+	        for row in cursor.fetchall()
+	    ]
+	// cursor.description contains info on the model attributes with the first value in each list element ( which is each for a model attribute) is the attribute name. 
+
+	// difference is elucidated here
+
+	>>> cursor.execute("SELECT id, parent_id FROM test LIMIT 2");
+	>>> cursor.fetchall()
+	((54360982, None), (54360880, None))
+
+	>>> cursor.execute("SELECT id, parent_id FROM test LIMIT 2");
+	>>> dictfetchall(cursor)
+	[{'parent_id': None, 'id': 54360982}, {'parent_id': None, 'id': 54360880}]
+
+]]
+
+# CALLING STORED PROCEDURES
+
+	...

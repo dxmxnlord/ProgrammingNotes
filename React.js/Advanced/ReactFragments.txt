@@ -1,0 +1,103 @@
++  Fragments let you group a list of children without adding extra nodes to the DOM. They can function like div tags but arent treated as separate nodes. 
+
+[[
+	class Columns extends React.Component {
+	  render() {
+	    return (
+	      <React.Fragment>
+	        <td>Hello</td>
+	        <td>World</td>
+	      </React.Fragment>
+	    );
+	  }
+	}
+
+	// or a shorter syntax that doesnt support keys/attributes
+
+	class Columns extends React.Component {
+	  render() {
+	    return (
+	      <>
+	        <td>Hello</td>
+	        <td>World</td>
+	      </>
+	    );
+	  }
+	}
+]]
+
+## EXAMPLE
+
+[[
+	class Table extends React.Component {
+	  render() {
+	    return (
+	      <table>
+	        <tr>
+	          <Columns />
+	        </tr>
+	      </table>
+	    );
+	  }
+	}
+
+	class Columns extends React.Component {
+	  render() {
+	    return (
+	      <div>
+	        <td>Hello</td>
+	        <td>World</td>
+	      </div>
+	    );
+	  }
+	}
+
+	// incorrect table format
+]]
+
+[[
+	class Table extends React.Component {
+	  render() {
+	    return (
+	      <table>
+	        <tr>
+	          <Columns />
+	        </tr>
+	      </table>
+	    );
+	  }
+	}
+
+	class Columns extends React.Component {
+	  render() {
+	    return (
+	      <React.Fragment>
+	        <td>Hello</td>
+	        <td>World</td>
+	      </React.Fragment>
+	    );
+	  }
+	}
+
+	// still correct table format
+]]
+
+# KEYED FRAGMENTS
+
++ Fragments declared with the explicit <React.Fragment> syntax may have keys. key is the only attribute that can be passed to Fragment.
+
+[[
+	function Glossary(props) {
+	  return (
+	    <dl>
+	      {props.items.map(item => (
+	        // Without the `key`, React will fire a key warning
+	        <React.Fragment key={item.id}>
+	          <dt>{item.term}</dt>
+	          <dd>{item.description}</dd>
+	        </React.Fragment>
+	      ))}
+	    </dl>
+	  );
+	}
+]]

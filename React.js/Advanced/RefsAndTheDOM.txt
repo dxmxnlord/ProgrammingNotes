@@ -1,0 +1,82 @@
++ In the typical React dataflow, props are the only way that parent components interact with their children. To modify a child, you re-render it with new props. However, there are a few cases where you need to imperatively modify a child outside of the typical dataflow. The child to be modified could be an instance of a React component, or it could be a DOM element.
+
++ Refs are created using React.createRef() and attached to React elements via the ref attribute. Refs are commonly assigned to an instance property when a component is constructed so they can be referenced throughout the component
+
+[[
+	class MyComponent extends React.Component {
+	  constructor(props) {
+	    super(props);
+	    this.myRef = React.createRef();
+	  }
+	  render() {
+	    return <div ref={this.myRef} />;
+	  }
+	}
+]]
+
++ When a ref is passed to an element in render, a reference to the node becomes accessible at the current attribute of the ref. The value of the ref differs depending on the type of the node.
+
+	++ When the ref attribute is used on an HTML element, the ref created in the constructor with React.createRef() receives the underlying DOM element as its current property.
+
+	[[
+		class CustomTextInput extends React.Component {
+		  constructor(props) {
+		    super(props);
+		    // create a ref to store the textInput DOM element
+		    this.textInput = React.createRef();
+		    this.focusTextInput = this.focusTextInput.bind(this);
+		  }
+
+		  focusTextInput() {
+		    // Explicitly focus the text input using the raw DOM API
+		    // Note: we're accessing "current" to get the DOM node
+		    this.textInput.current.focus();
+		  }
+
+		  render() {
+		    // tell React that we want to associate the <input> ref
+		    // with the `textInput` that we created in the constructor
+		    return (
+		      <div>
+		        <input
+		          type="text"
+		          ref={this.textInput} />
+
+		        <input
+		          type="button"
+		          value="Focus the text input"
+		          onClick={this.focusTextInput}
+		        />
+		      </div>
+		    );
+		  }
+		}
+	]]
+
+	++ When the ref attribute is used on a custom class component, the ref object receives the mounted instance of the component as its current.
+
+	[[
+		class AutoFocusTextInput extends React.Component {
+		  constructor(props) {
+		    super(props);
+		    this.textInput = React.createRef();
+		  }
+
+		  componentDidMount() {
+		    this.textInput.current.focusTextInput();
+		  }
+
+		  render() {
+		    return (
+		      <CustomTextInput ref={this.textInput} />
+		    );
+		  }
+		}
+	]]
+
+	++ You may not use the ref attribute on function components because they don’t have instances. You can, however, use the ref attribute inside a function component as long as you refer to a DOM element or a class component
+
++ React will assign the current property with the DOM element when the component mounts, and assign it back to null when it unmounts. ref updates happen before componentDidMount or componentDidUpdate lifecycle methods.
+
+% Ref forwarding %
+% Callback Refs %

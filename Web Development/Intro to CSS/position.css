@@ -1,0 +1,158 @@
+/* 
+
+There are 5 main values of CSS positions 
+
+	position: static | relative | absolute | fixed | sticky
+
+The properties for setting the coordinates of an element are helper properties
+
+	top | right | bottom | left and z-index
+
+Note: Helper properties don’t work without a declared position, or with
+position: static.
+
+We have height and width (x, y) as 2 dimensions. Z is the 3rd dimension. An
+element comes in front of other elements as its z-index value increases.
+Z-index also doesn’t work with position: static or without a declared
+position.
+
+*/
+
+/* position:static */ 
+
+/* 
+
+position: static is the default value. Whether we declare it or not, elements
+are positioned in normal order on the webpage. Div’s are block elements by
+default, and that’s why they are not on the same line. 
+
+*/
+
+.box{
+	border: 1px solid red;
+	padding: 10px;
+}
+
+#box-blue1{
+	background-color: blue;
+	height: 100px;
+	width: 100px;
+}
+
+#box-green1{
+	background-color: green;
+	height: 100px;
+	width: 100px;
+}
+
+/* position: relative */
+
+/* 
+
+position: relative: An element’s new position relative to its normal position.
+
+Starting with position: relative and for all non-static position values, we
+are able to change an element’s default position. But only defining position:
+relative is not enough, we also need to set the element’s coordinates with
+helper properties. Using position: relative for an element, doesn’t affect
+other elements’ positions.
+
+*/
+
+#box-blue2{
+	background-color: blue;
+	height: 100px;
+	width: 100px;
+	position: relative;
+	top: 30px;
+	left: 30px;
+}
+
+#box-green2{
+	background-color: green;
+	height: 100px;
+	width: 100px;
+}
+
+/* position: absolute */
+
+/* 
+
+In position: relative, the element is positioned relative to itself. However,
+an absolute positioned element is relative to its parent.
+
+An element with position: absolute is removed from the normal document flow.
+It is positioned automatically to the starting point (top-left corner) of its
+parent element. If it doesn’t have any parent elements, then the initial
+document <html> will be its parent.
+
+Since position: absolute removes the element from the document flow, other
+elements are affected and behave as the element is removed completely from the
+webpage.
+
+The coordinates of an absolute positioned element are relative to its parent
+if the parent also has a non-static position. Otherwise, helper properties
+position the element relative to the initial <html>.
+
+*/
+
+#box-blue3{
+	background-color: blue;
+	height: 100px;
+	width: 100px;
+	position: absolute;
+	top: 650px;
+	left: 30px;
+}
+
+#box-green3{
+	background-color: green;
+	height: 100px;
+	width: 100px;
+}
+
+/* position: fixed */
+
+/* 
+
+Like position: absolute, fixed positioned elements are also removed from the
+normal document flow. They are only relative to the <html> document, not any
+other parents. They are not affected by scrolling.
+
+*/
+
+#box-blue4{
+	background-color: blue;
+	height: 100px;
+	width: 100px;
+	position: fixed;
+	top: 100px;
+	right: 30px;
+}
+
+#box-green4{
+	background-color: green;
+	height: 100px;
+	width: 100px;
+}
+
+/* z-index */
+
+#box-blue5{
+	background-color: blue;
+	height: 100px;
+	width: 100px;
+	position: relative;
+	top: 30px;
+	left: 30px;
+	position: relative;
+	z-index: 1;
+}
+
+#box-green5{
+	background-color: green;
+	height: 100px;
+	width: 100px;
+	position: relative;
+	z-index: 2;
+}

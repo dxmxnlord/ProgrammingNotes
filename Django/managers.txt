@@ -1,0 +1,108 @@
++ A Manager is the interface through which database query operations are provided to Django models. At least one Manager exists for every model in a Django application.
+
+# MANAGER NAMES
+
++ By default the manager name is 'objects' but you can rename it in case you want an attribute with that name. 
+
+[[
+    class Person(models.Model):
+        // model fields
+        people = models.Manager()
+]]
+
+# CUSTOM MANAGERS
+
+## ADDING EXTRA MANAGER METHODS
+
++ the defalut methods used in managers are the all() filter() etc but you can include more methods by extending the base manager class. A custom Manager method can return anything you want. It doesn’t have to return a QuerySet.
+
+[[
+    class PollManager(models.Manager):
+        def with_counts(self):
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT p.id, p.question, p.poll_date, COUNT(*)
+                    FROM polls_opinionpoll p, polls_response r
+                    WHERE p.id = r.poll_id
+                    GROUP BY p.id, p.question, p.poll_date
+                    ORDER BY p.poll_date DESC""")
+                result_list = []
+                for row in cursor.fetchall():
+                    // constructs a model-class instance of the object 
+                    // else you can give it as a list of object lists
+                    p = self.model(id=row[0], question=row[1], poll_date=row[2])
+                    p.num_responses = row[3]
+                    result_list.append(p)
+            return result_list
+
+    class OpinionPoll(models.Model):
+        question = models.CharField(max_length=200)
+        poll_date = models.DateField()
+        objects = PollManager()
+
+    class Response(models.Model):
+        poll = models.ForeignKey(OpinionPoll, on_delete=models.CASCADE)
+        person_name = models.CharField(max_length=50)
+        response = models.TextField()
+
+    // OpinionPoll.objects.with_counts() to return that list of OpinionPoll objects with num_responses attributes.
+]]
+
+## MODIFYING MANAGERS INITIAL QUERYSET
+
++ A Manager’s base QuerySet returns all objects in the system. You can override a Manager’s base QuerySet by overriding the Manager.get_queryset() method. get_queryset() should return a QuerySet with the properties you require. The base queryset is the queryset that is operated upon when any other method is called. By default the queryset is all().
+
+[[
+    class DahlBookManager(models.Manager):
+        def get_queryset(self):
+            return super().get_queryset().filter(author='Roald Dahl')
+
+    class Book(models.Model):
+        title = models.CharField(max_length=100)
+        author = models.CharField(max_length=50)
+
+        objects = models.Manager() // The default manager.
+        dahl_objects = DahlBookManager() // The Dahl-specific manager.
+]]
+
++ If you use custom Manager objects, take note that the first Manager Django encounters (in the order in which they’re defined in the model) has a special status. Django interprets the first Manager defined in a class as the “default” Manager, and several parts of Django (including dumpdata) will use that Manager exclusively for that model. As a result, it’s a good idea to be careful in your choice of default manager in order to avoid a situation where overriding get_queryset() results in an inability to retrieve objects you’d like to work with. You can specify a custom default manager using Meta.default_manager_name.
+
++ By default, Django uses an instance of the Model._base_manager manager class when accessing related objects (i.e. choice.question), not the _default_manager on the related object. This is because Django needs to be able to retrieve the related object, even if it would otherwise be filtered out (and hence be inaccessible) by the default manager. If the normal base manager class (django.db.models.Manager) isn’t appropriate for your circumstances, you can tell Django which class to use by setting Meta.base_manager_name. Base managers aren’t used when directly querying on related models. This manager is used to access objects that are related to from some other model. In those situations, Django has to be able to see all the objects for the model it is fetching, so that anything which is referred to can be retrieved. If you override the get_queryset() method and filter out any rows, Django will return incorrect results. Don’t do that. A manager that filters results in get_queryset() is not appropriate for use as a base manager.
+
+# CALLING CUST0M QUERYSETS FROM THE MANAGER
+
+[[
+    class PersonQuerySet(models.QuerySet):
+        def authors(self):
+            return self.filter(role='A')
+
+        def editors(self):
+            return self.filter(role='E')
+
+    class PersonManager(models.Manager):
+        def get_queryset(self):
+            return PersonQuerySet(self.model, using=self._db)
+
+        def authors(self):
+            return self.get_queryset().authors()
+
+        def editors(self):
+            return self.get_queryset().editors()
+
+    class Person(models.Model):
+        first_name = models.CharField(max_length=50)
+        last_name = models.CharField(max_length=50)
+        role = models.CharField(max_length=1, choices=[('A', _('Author')), ('E', _('Editor'))])
+        people = PersonManager()
+]]
+
+# CUSTOM MANAGERS AND MODEL INHERITANCE
+
++ how it is handlied :
+
+    ++ Managers from base classes are always inherited by the child class, using Python’s normal name resolution order (names on the child class override all others; then come names on the first parent class, and so on).
+
+    ++ If no managers are declared on a model and/or its parents, Django automatically creates the objects manager.
+
+    ++ The default manager on a class is either the one chosen with Meta.default_manager_name, or the first manager declared on the model, or the default manager of the first parent model.

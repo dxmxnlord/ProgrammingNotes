@@ -1,0 +1,17 @@
++ Django comes with a user authentication system. It handles user accounts, groups, permissions and cookie-based user sessions.
+
++ The system consists : 
+
+	Users
+
+	Permissions: Binary (yes/no) flags designating whether a user may perform a certain task.
+
+	Groups: A generic way of applying labels and permissions to more than one user.
+
+	A configurable password hashing system
+
+	Forms and view tools for logging in users, or restricting content
+
+	A pluggable backend system
+
++ The authentication system in Django aims to be very generic and doesn’t provide some features commonly found in web authentication systems. These can be implemented through third-party packages. 

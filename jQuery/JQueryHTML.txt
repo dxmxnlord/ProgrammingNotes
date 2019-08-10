@@ -1,0 +1,453 @@
+# DOM MANIPULATION
+
++ jQuery comes with a bunch of DOM related methods that make it easy to access and manipulate elements and attributes.
+
++ Three simple, but useful, jQuery methods for DOM manipulation are:
+
+	text() - Sets or returns the text content of selected elements
+	html() - Sets or returns the content of selected elements (including HTML markup)
+	val() - Sets or returns the value of form fields
+
+1. text()
+
++ When this method is used to return content, it returns the text content of all matched elements (HTML markup will be removed).
+
+< $(selector).text() >
+
+	++ returns text content
+
+	[[
+		$(document).ready(function(){
+		  $("button").click(function(){
+		    alert($("p").text());
+		  });
+		});
+	]]
+
+< $(selector).text(content) >
+
+	++ Set text content
+
+	[[
+		$("button").click(function(){
+		  $("p").text("Hello world!");
+		});
+	]]
+
+< $(selector).text(function(index,currentcontent)) >
+
+	++ Set text content using a function
+
+	[[
+		$(document).ready(function(){
+		  $("button").click(function(){
+		    $("p").text(function(n){
+		      return "This p element has index: " + n;
+		    });
+		  });
+		});
+	]]
+
+2. html()
+
++ When this method is used to return content, it returns the content of the FIRST matched element.
+
++ When this method is used to set content, it overwrites the content of ALL matched elements.
+
+< $(selector).html() >
+
+	++ Return content
+
+	[[
+		$(document).ready(function(){
+		  $("button").click(function(){
+		    alert($("p").html());
+		  });
+		});
+	]]
+
+< $(selector).html(content) >
+
+	++ Set content
+
+	[[
+		("button").click(function(){
+		  $("p").html("Hello <b>world</b>!");
+		});
+	]]
+
+< $(selector).html(function(index,currentcontent)) >
+
+	++ Set content using a function 
+
+	[[
+		$(document).ready(function(){
+		  $("button").click(function(){
+		    $("p").html(function(n){
+		      return "This p element has index: " + n;
+		    });
+		  });
+		});
+	]]
+
+3. val()
+
++ This method returns the value of the value attribute of the FIRST matched element.
+
++ This method sets the value of the value attribute for ALL matched elements.
+
+< $(selector).val() >
+
+	++ return the attribute value
+
+	[[
+		$(document).ready(function(){
+		  $("button").click(function(){
+		    alert($("input:text").val());
+		  });
+		});
+	]]
+
+< $(selector).val(value) >
+
+	++ Set the value attribute
+
+	[[
+		$("button").click(function(){
+		  $("input:text").val("Glenn Quagmire");
+		});
+	]]
+
+< $(selector).val(function(index,currentvalue)) >
+
+	++ Set the value attribute using a function
+
+	[[
+		$(document).ready(function(){
+		  $("button").click(function(){
+		    $("input:text").val(function(n, c){
+		      return c + " Griffin";
+		    });
+		  });
+		});
+	]]
+
+4. attr()
+
++ When this method is used to return the attribute value, it returns the value of the FIRST matched element.
+
++ When this method is used to set attribute values, it sets one or more attribute/value pairs for the set of matched elements.
+
+< $(selector).attr(attribute) >
+
+	++ return value
+
+	[[
+		$(document).ready(function(){
+		  $("button").click(function(){
+		    alert("Image width: " + $("img").attr("width"));
+		  });
+		});
+	]]
+
+< $(selector).attr(attribute,value) >
+	
+	++ Set the attribute and value
+
+	[[
+		$("button").click(function(){
+		  $("img").attr("width","500");
+		});
+	]]
+
+< $(selector).attr(attribute,function(index,currentvalue)) >
+
+	++ Set attribute and value using a function
+
+	[[
+		$(document).ready(function(){
+		  $("button").click(function(){
+		    $("img").attr("width",function(n, v){
+		      return v - 50;
+		    });
+		  });
+		});
+	]]
+
+< $(selector).attr({attribute:value, attribute:value,...}) >
+
+	++ Set multiple attributes and values
+
+	[[
+		$(document).ready(function(){
+		  $("button").click(function(){
+		    $("img").attr({width: "150", height: "100"});
+		  });
+		});
+	]]
+
+# ADDING ELEMENTS
+
++ 4 main methods to add content are 
+
+	append() - Inserts content at the end of the selected elements
+	prepend() - Inserts content at the beginning of the selected elements
+	after() - Inserts content after the selected elements
+	before() - Inserts content before the selected elements
+
++ content - Specifies the content to insert (can contain HTML tags)
+	Possible values:
+
+		HTML elements
+		jQuery objects 
+		DOM elements
+
+< $(selector).append(content,function(index,html)) >
+
+	++ The append() method inserts specified content at the end of the selected elements.
+	++ index - Returns the index position of the element in the set
+	++ html - Returns the current HTML of the selected element
+
+	[[
+		$("button").click(function(){
+		  $("p").append("<b>Appended text</b>");
+		});
+	]]
+
+< $(selector).prepend(content,function(index,html)) >
+
+	++ The prepend() method inserts specified content at the beginning of the selected elements.
+
+	[[
+		$("button").click(function(){
+		  $("p").prepend("<b>Prepended text</b>");
+		});
+	]]
+
+< $(selector).after(content,function(index)) >
+
+	++ The after() method inserts specified content after the selected elements.
+	
+	[[
+		$("button").click(function(){
+		  $("p").after("<p>Hello world!</p>");
+		});
+
+		// insert after each p element
+	]]
+
+< $(selector).before(content,function(index)) >
+
+	++ The before() method inserts specified content in front of (before) the selected elements.
+
+	[[
+		$("button").click(function(){
+		  $("p").before("<p>Hello world!</p>");
+		});
+	]]
+
++ you can add multiple elements
+
+	[[
+		function appendText() {
+		  var txt1 = "<p>Text.</p>";               // Create element with HTML  
+		  var txt2 = $("<p></p>").text("Text.");   // Create with jQuery
+		  var txt3 = document.createElement("p");  // Create with DOM
+		  txt3.innerHTML = "Text.";
+		  $("body").append(txt1, txt2, txt3);      // Append the new elements 
+		}
+	]]
+
+	[[
+		function afterText() {
+		  var txt1 = "<b>I </b>";                    // Create element with HTML  
+		  var txt2 = $("<i></i>").text("love ");     // Create with jQuery
+		  var txt3 = document.createElement("b");    // Create with DOM
+		  txt3.innerHTML = "jQuery!";
+		  $("img").after(txt1, txt2, txt3);          // Insert new elements after <img>
+		}
+	]]
+
+# REMOVING ELEMENTS
+
++ To remove elements and content, there are mainly two jQuery methods:
+
+	remove() - Removes the selected element (and its child elements)
+	empty() - Removes the child elements from the selected element
+
+< $(selector).remove(selector) >
+
+	++ The remove() method removes the selected elements, including all text and child nodes. This method also removes data and events of the selected elements.
+
+	++ To remove the elements without removing data and events, use the detach() method instead.
+
+	[[
+		$("button").click(function(){
+		  $("p").remove();
+		});
+	]]
+
+	[[
+		$(document).ready(function(){
+		  $("button").click(function(){
+		    $("p").remove(".test");
+		  });
+		});
+
+		// remove p with class test
+
+		$(document).ready(function(){
+		  $("button").click(function(){
+		    $("p").remove(".test, .demo");
+		  });
+		});
+
+		// remove p with class test or class demo
+	]]
+
+	++ selector	- Optional. Specifies one or more elements to be removed. To remove multiple elements, separate them with a comma
+
+< $(selector).empty() >
+
+	++ The empty() method removes all child nodes and content from the selected elements.
+
+	++ This method does not remove the element itself, or its attributes.
+
+	[[
+		$("button").click(function(){
+		  $("div").empty();
+		});
+	]]
+
+# CSS CLASSES
+
++ jQuery has several methods for CSS manipulation. We will look at the following methods:
+
+	addClass() - Adds one or more classes to the selected elements
+	removeClass() - Removes one or more classes from the selected elements
+	toggleClass() - Toggles between adding/removing classes from the selected elements
+	css() - Sets or returns the style attribute
+
+< $(selector).addClass(classname,function(index,currentclass)) >
+
+	++ The addClass() method adds one or more class names to the selected elements.
+	++ This method does not remove existing class attributes, it only adds one or more class names to the class attribute.
+
+	[[
+		$("button").click(function(){
+		  $("p:first").addClass("intro");
+		});
+	]]
+
+	[[
+		$("button").click(function(){
+		  $("h1, h2, p").addClass("blue");
+		  $("div").addClass("important");
+		});
+	]]
+
+	[[
+		$("button").click(function(){
+		  $("#div1").addClass("important blue");
+		});
+	]]
+
+< $(selector).removeClass(classname,function(index,currentclass)) >
+
+	++ The removeClass() method removes one or more class names from the selected elements.
+	++ If no parameter is specified, this method will remove ALL class names from the selected elements.
+
+	[[
+		$("button").click(function(){
+		  $("p").removeClass("intro");
+		});
+	]]
+
+< $(selector).toggleClass(classname,function(index,currentclass),switch) >
+
+	+ The toggleClass() method toggles between adding and removing one or more class names from the selected elements.
+
+	+ switch - Optional. A Boolean value specifying if the class should only be added (true), or only be removed (false)
+
+	[[
+		$("button").click(function(){
+		  $("p").toggleClass("main");
+		});
+	]]
+
+# MODIFY CSS
+
++ The css() method sets or returns one or more style properties for the selected elements.
+
++ This method returns the specified CSS property value of the FIRST matched element. However, shorthand CSS properties (like "background" and "border") are not fully supported and may give different results in different browsers.
+
++ This method sets the specified CSS property for ALL matched elements.
+
+< $(selector).css(property) >
+	
+	++ return css property value
+
+	[[
+		$("p").css("background-color");
+	]]
+
+< $(selector).css(property,value) >
+< $(selector).css(property,function(index,currentvalue)) >
+
+	++ set css property
+
+	[[
+		$("button").click(function(){
+		  $("p").css("color", "red");
+		});
+	]]
+
+< $(selector).css({property:value, property:value, ...}) >
+
+	++ set multiple css values
+
+	[[
+		$("p").css({"background-color": "yellow", "font-size": "200%"});
+	]]
+
+# DIMENSIONS
+
++ function - HTML associations : 
+
+	width() - width of element
+	height() - height of element
+	innerWidth() - width() + padding length
+	innerHeight() - height() + padding height
+	outerWidth() - innerWidth() + borderlength
+	outerHeight() - innerHeight() + borderheight
+	outerWidth(true) - outerWidth() + marginlength
+	outerHeight(true) - outerHeight() + marginheight
+
+< $(selector).dimensionfunc() > - return value  
+< $(selector).dimensionfunc(value) > - set value  
+
+[[
+	$("button").click(function(){
+	  var txt = "";
+	  txt += "Width: " + $("#div1").width() + "</br>";
+	  txt += "Height: " + $("#div1").height();
+	  $("#div1").html(txt);
+	});
+]]
+
+[[
+	$("button").click(function(){
+	  var txt = "";
+	  txt += "Document width/height: " + $(document).width();
+	  txt += "x" + $(document).height() + "\n";
+	  txt += "Window width/height: " + $(window).width();
+	  txt += "x" + $(window).height();
+	  alert(txt);
+	});
+]]
+
+[[
+	$("button").click(function(){
+	  $("#div1").width(500).height(500);
+	});
+]]

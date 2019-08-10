@@ -1,0 +1,201 @@
+# ANCESTORS
+
++ With jQuery you can traverse up the DOM tree to find ancestors of an element.
+
++ Three useful jQuery methods for traversing up the DOM tree are:
+
+	parent()
+	parents()
+	parentsUntil()
+
+< $(selector).parent(filter) >
+
+	++ filter specifies a selector expression to narrow down the parent search
+
+	++ The parent() method returns the direct parent element of the selected element.
+
+	[[
+		$(document).ready(function(){
+		  $("span").parent().css({"color": "red", "border": "2px solid red"});
+		});
+	]]
+
+< $(selector).parents(filter) >
+
+	++ The parents() method returns all ancestor elements of the selected element.
+	++ If the filter parameter is empty, this function will select all ancestors of a set of elements, from the direct parent and all the way up to <body> and <html>.
+	++ To return multiple ancestors, separate each expression with a comma in the filter parameter.
+
+	[[
+		$(document).ready(function(){
+		  $("span").parents().css({"color": "red", "border": "2px solid red"});
+		});
+	]]
+
+	[[
+		$(document).ready(function(){
+		  $("span").parents("div,li").css({"color": "red", "border": "2px solid red"});
+		});
+	]]
+
+< $(selector).parentsUntil(stop,filter) >
+
+	++ stop - A selector expression, element or jQuery object indicating where to stop the search for matching ancestor elements
+	++ filter - Specifies a selector expression to narrow down the search for ancestors between selector and stop
+
+	++ The parentsUntil() method returns all ancestor elements between the selector and stop. Excluding the stop element.
+
+	[[
+		$(document).ready(function(){
+		  $("span").parentsUntil("div").css({"color": "red", "border": "2px solid red"});
+		});
+	]]
+
+# DESCENDANTS
+
++ Two useful jQuery methods for traversing down the DOM tree are:
+
+	children()
+	find()
+	contents()
+
+< $(selector).children(filter) >
+
+	++ The children() method returns all direct children of the selected element. This method only traverse a single level down the DOM tree and collects all elements at that level. This method does not return text nodes.
+
+	[[
+		$(document).ready(function(){
+		  $("div").children();
+		});
+	]]
+
+	[[
+		$(document).ready(function(){
+		  $("div").children("p.first");
+		});
+	]]
+
+< $(selector).find(filter) >
+
+	++ The find() method returns descendant elements of the selected element. This method traverse downwards along descendants of DOM elements, all the way down to the last descendant. The filter parameter is required for the find() method, unlike the rest of the tree traversal methods. To return all of the descendant elements, use the "*" selector.
+
+	[[
+		$(document).ready(function(){
+		  $("div").find("span");
+		});
+	]]
+
+	[[
+		$(document).ready(function(){
+		  $("div").find("*");
+		});
+	]]
+
+< $(selector).contents() >
+
+	+ The contents() method returns all direct children, including text and comment nodes, of the selected element.
+
+	[[
+		$("div").contents().filter("em").wrap("<b/>");
+
+		// Find all the text nodes inside a <div> element and wrap them with a <b> element
+	]]
+
+# SIBLINGS
+
++ There are many useful jQuery methods for traversing sideways in the DOM tree:
+
+	siblings()
+	next()
+	nextAll()
+	nextUntil()
+	prev()
+	prevAll()
+	prevUntil()
+
+< $(selector).siblings(filter) >
+
+	++ The siblings() method returns all sibling elements of the selected element. This method traverse forward and backwards along siblings of DOM elements. Excludes the selector sibling
+
+	[[
+		$(document).ready(function(){
+		  $("li.start").siblings().css({"color": "red", "border": "2px solid red"});
+		});
+	]]
+
+< $(selector).next(filter) > 
+
+	++ The next() method returns the next sibling element of the selected element.
+
+< $(selector).prev(filter) >
+
+	++ The prev() method returns the previous sibling element of the selected element.
+
+< $(selector).nextAll(filter) >
+
+	++ The nextAll() method returns all next sibling elements of the selected element.
+
+< $(selector).nextUntil(stop,filter) >
+
+	++ The nextUntil() method returns all next sibling elements between the selector and stop excluding the stop element
+
+< $(selector).prevAll(filter) >
+
+	++ The prevAll() method returns all previous sibling elements of the selected element.
+
+< $(selector).prevUntil(stop,filter) >
+
+	++ The prevUntil() method returns all previous sibling elements between the selector and stop excluding the stop element
+
+# FILTERING
+
+< $(selector).first() >
+
+	+ The first() method returns the first element of the selected elements.
+
+	[[
+		$("div p").first()
+	]]
+
+< $(selector).last() >
+
+	+ The last() method returns the last element of the selected elements.
+
+	[[
+		$("div p").last()
+	]]
+
+< $(selector).eq(index) >
+
+	++ The eq() method returns an element with a specific index number of the selected elements.
+
+	++  Using a negative number will start the index count from the end of the selected elements, instead of the beginning.
+
+	[[
+		$("p").eq(1).css("background-color", "yellow");
+	]]
+
+< $(selector).filter(criteria,function(index)) >
+
+	++ The filter() method returns elements that match a certain criteria. This method lets you specify a criteria. Elements that do not match the criteria are removed from the selection, and those that match will be returned.
+
+	++ criteria - Specifies a selector expression, a jQuery object or one or more elements to be returned from a group of selected elements. To specify multiple criteria, use comma.
+	++ function - Specifies a function to run for each element in the set. If it returns true, the element is kept. Otherwise, the element is removed. 'this' is the current DOM element.
+
+	[[
+		$("p").filter(".intro")
+	]]
+
+	[[
+		$(document).ready(function(){
+		  $("p").filter(function(){  
+		    return $("span", this).length == 2;}).css("background-color", "yellow");
+		});
+
+		// returns all p elements that have two span elements
+	]]
+
+< $(selector).not(criteria,function(index)) > 
+
+	++ The not() method returns elements that do not match a certain criteria. Its the opposite of the filter method
+

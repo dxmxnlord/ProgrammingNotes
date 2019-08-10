@@ -1,0 +1,262 @@
+# HIDE AND SHOW
+
++ With jQuery, you can hide and show HTML elements with the hide() and show() methods
+
+< $(selector).hide(speed,callback) > 
+< $(selector).show(speed,callback) >
+
++ The optional speed parameter specifies the speed of the hiding/showing, and can take the following values: "slow", "fast", or milliseconds.
+
+[[
+	$("#hide").click(function(){
+	  $("p").hide();
+	});
+
+	$("#show").click(function(){
+	  $("p").show();
+	});
+]]
+
++ You can also toggle between hiding and showing an element with the toggle() method.
+
+< $(selector).toggle(speed,callback) > 
+
+	++ can also use a boolean parameter and toggle if true
+
+	[[
+		$( "#foo" ).toggle( display );
+
+		// is equivalent to 
+
+		if ( display === true ) {
+		  $( "#foo" ).show();
+		} else if ( display === false ) {
+		  $( "#foo" ).hide();
+		}
+	]]
+
+[[
+	$("button").click(function(){
+	  $("p").toggle();
+	});
+]]
+
+# FADE AND SHOW
+
++ With jQuery you can fade an element in and out of visibility.
+
++ The availible methods are : 
+
+	fadeIn()
+	fadeOut()
+	fadeToggle()
+	fadeTo()
+
+< $(selector).fadeIn(speed,callback); >
+
+[[
+	$("button").click(function(){
+	  $("#div1").fadeIn();
+	  $("#div2").fadeIn("slow");
+	  $("#div3").fadeIn(3000);
+	});
+
+	// the divs have display:none so the fadein works
+]]
+
+< $(selector).fadeOut(speed,callback); >
+
+[[
+	$("button").click(function(){
+	  $("#div1").fadeOut();
+	  $("#div2").fadeOut("slow");
+	  $("#div3").fadeOut(3000);
+	});
+]]
+
+< $(selector).fadeToggle(speed,callback); >
+
+[[
+	$("button").click(function(){
+	  $("#div1").fadeToggle();
+	  $("#div2").fadeToggle("slow");
+	  $("#div3").fadeToggle(3000);
+	});
+]]
+
+< $(selector).fadeTo(speed,opacity,callback); >
+
+	++ The required opacity parameter in the fadeTo() method specifies fading to a given opacity (value between 0 and 1).
+	++ The optional callback parameter is a function to be executed after the function completes.
+
+[[
+	$("button").click(function(){
+	  $("#div1").fadeTo("slow", 0.15);
+	  $("#div2").fadeTo("slow", 0.4);
+	  $("#div3").fadeTo("slow", 0.7);
+	});
+]]
+
+# SLIDING
+
++ With jQuery you can create a sliding effect on elements.
+
+	slideDown()
+	slideUp()
+	slideToggle()
+
+< $(selector).slideDown(speed,callback); >
+
+[[
+	$("#flip").click(function(){
+	  $("#panel").slideDown();
+	});
+]]
+
+< $(selector).slideUp(speed,callback); >
+
+[[
+	$("#flip").click(function(){
+	  $("#panel").slideUp();
+	});
+]]
+
+< $(selector).slideToggle(speed,callback); >
+
+[[
+	$("#flip").click(function(){
+	  $("#panel").slideToggle();
+	});
+]]
+
+# ANIMATIONS 
+
+< $(selector).animate({params},speed,callback); >
+
+	++ The required params parameter defines the CSS properties to be animated.
+
+[[
+	$("button").click(function(){
+	  $("div").animate({left: '250px'});
+	}); 
+
+	// it moves a <div> element to the right, until it has reached a left property of 250px:
+
+	$("button").click(function(){
+	  $("div").animate({
+	    left: '250px',
+	    opacity: '0.5',
+	    height: '150px',
+	    width: '150px'
+	  });
+	}); 
+]]
+
+	++ you can give relative values to the current value in the params
+
+	[[
+		$("button").click(function(){
+		  $("div").animate({
+		    left: '250px',
+		    height: '+=150px',
+		    width: '+=150px'
+		  });
+		});
+	]] 
+
+	++ the predefined values, 'show','hide','toggle' can be used too
+
+	[[
+		$("button").click(function(){
+		  $("div").animate({
+		    height: 'toggle'
+		  });
+		});
+	]]
+
++ the animations are executed in a queue fashion
+
+[[
+	$("button").click(function(){
+	  var div = $("div");
+	  div.animate({left: '100px'}, "slow");
+	  div.animate({fontSize: '3em'}, "slow");
+	});
+
+	// first moves the <div> element to the right, and then increases the font size 
+]]
+
++ The jQuery stop() method is used to stop an animation or effect before it is finished.
+
+< $(selector).stop(stopAll,goToEnd); >
+
+	++ The optional stopAll parameter specifies whether also the animation queue should be cleared or not. Default is false, which means that only the active animation will be stopped, allowing any queued animations to be performed afterwards.
+	++ The optional goToEnd parameter specifies whether or not to complete the current animation immediately. Default is false.
+
+	[[
+		$(document).ready(function(){
+		  $("#flip").click(function(){
+		    $("#panel").slideDown(5000);
+		  });
+		  $("#stop").click(function(){
+		    $("#panel").stop();
+		  });
+		});
+	]]
+
+# CALLBACK FUNCTIONS
+
++ A callback function is executed after the current effect is 100% finished.
+
++ JavaScript statements are executed line by line. However, with effects, the next line of code can be run even though the effect is not finished. This can create errors. To prevent this, you can create a callback function.
+
+[[
+	// with callback
+
+	$("button").click(function(){
+	  $("p").hide("slow", function(){
+	    alert("The paragraph is now hidden");
+	  });
+	});
+
+	// with callback
+
+	$("button").click(function(){
+	  $("p").hide(1000);
+	  alert("The paragraph is now hidden");
+	});
+]]
+
+# CHAINING
+
++ Chaining allows us to run multiple jQuery methods (on the same element) within a single statement. This way, browsers do not have to find the same element(s) more than once. 
+
+[[ 
+	$("#p1").css("color", "red").slideUp(2000).slideDown(2000); 
+
+	// or
+
+	$("#p1").css("color", "red")
+	  .slideUp(2000)
+	  .slideDown(2000);
+]]
+
++ Other effect methods:
+
+	animate() ->Runs a custom animation on the selected elements
+	clearQueue() ->Removes all remaining queued functions from the selected elements
+	delay() ->Sets a delay for all queued functions on the selected elements
+	dequeue() ->Removes the next function from the queue, and then executes the function
+	fadeIn() ->Fades in the selected elements
+	fadeOut() ->Fades out the selected elements
+	fadeTo() ->Fades in/out the selected elements to a given opacity
+	fadeToggle() ->Toggles between the fadeIn() and fadeOut() methods
+	finish()->Stops, removes and completes all queued animations for selected elements
+	hide() ->Hides the selected elements
+	queue() ->Shows the queued functions on the selected elements
+	show() ->Shows the selected elements
+	slideDown() ->Slides-down (shows) the selected elements
+	slideToggle() ->Toggles between the slideUp() and slideDown() methods
+	slideUp() ->Slides-up (hides) the selected elements
+	stop() ->Stops the currently running animation for the selected elements
+	toggle() ->Toggles between the hide() and show() methods

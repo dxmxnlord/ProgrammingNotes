@@ -1,0 +1,120 @@
++ jQuery takes a lot of common tasks that require many lines of JavaScript code to accomplish, and wraps them into methods that you can call with a single line of code.
+
++ With jQuery you select (query) HTML elements and perform "actions" on them. The jQuery syntax is tailor-made for selecting HTML elements and performing some action on the element(s).
+
++ Basic syntax is: $(selector).action()
+
+	++ A $ sign to define/access jQuery
+	++ A (selector) to "query (or find)" HTML elements
+	++ A jQuery action() to be performed on the element(s)
+
+# DOCUMENT.READY EVENT
+
++ To prevent any jquery methods from running before the document is finished loading we use the document.ready event
+
+[[
+	$(document).ready(function(){
+
+	  // jQuery methods go here...
+
+	});
+]]
+
+# JQUERY SELECTORS
+
++ jQuery selectors are used to "find" (or select) HTML elements based on their name, id, classes, types, attributes, values of attributes and much more. It's based on the existing CSS Selectors, and in addition, it has some own custom selectors. All selectors in jQuery start with the dollar sign and parentheses: $().
+
++ There are 5 types of main selectors: 
+
+	++ element selector -> $("element")
+	++ id selector -> $("#id")
+	++ class selector -> $(".class")
+	++ all selector -> $("*")
+	++ this selector -> $("this")
+
+	examples
+
+	$("e1 e2") -> e2 elements inside e1
+	$("e1:first") -> first e1 element
+	$("[href]") -> all elements with href attribute
+
+# JQUERY EVENTS
+
++ In jQuery, most DOM events have an equivalent jQuery method.
+
++ Common Event Methods
+
+	1. click(func)
+	2. dblclick(func) 
+	3. mouseenter(func)
+	4. mouseleave(func)
+	5. mousedown(func)
+	6. mouseup(func)
+	7. hover(func1,func2)
+		++ func1 for entering func2 for leaving
+	8. focus()
+		++ only form field
+		++ executed when field gets focussed	
+	9. blur()
+		++ only form field
+		++ executed when fiels loses focus
+
+
++ The on() method allows you to attach multiple event handlers to a node
+
+[[
+	// single
+
+	$("p").on("click", function(){
+	  $(this).hide();
+	});
+
+	// multiple
+
+	$("p").on({
+	  mouseenter: function(){
+	    $(this).css("background-color", "lightgray");
+	  }, 
+	  mouseleave: function(){
+	    $(this).css("background-color", "lightblue");
+	  }, 
+	  click: function(){
+	    $(this).css("background-color", "yellow");
+	  } 
+	});
+]]
+
+# NO CONFLICT
+
++ The noConflict() method releases the hold on the '$' shortcut identifier, so that other scripts can use it. Instead use the 'jquery' identifier.
+
+[[
+	$.noConflict();
+	jQuery(document).ready(function(){
+	  jQuery("button").click(function(){
+	    jQuery("p").text("jQuery is still working!");
+	  });
+	});
+]]
+
++ you can also create your own identifier 
+
+[[
+	var jq = $.noConflict();
+	jq(document).ready(function(){
+	  jq("button").click(function(){
+	    jq("p").text("jQuery is still working!");
+	  });
+	});
+]]
+
++ If you have a block of jQuery code which uses the $ shortcut and you do not want to change it all, you can pass the $ sign in as a parameter to the ready method.
+
+[[
+	$.noConflict();
+	jQuery(document).ready(function($){
+	  $("button").click(function(){
+	    $("p").text("jQuery is still working!");
+	  });
+	});
+]]

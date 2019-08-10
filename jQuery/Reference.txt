@@ -1,0 +1,107 @@
+# EFFECTS
+
+	animate() ->Runs a custom animation on the selected elements
+	clearQueue() ->Removes all remaining queued functions from the selected elements
+	delay() ->Sets a delay for all queued functions on the selected elements
+	dequeue() ->Removes the next function from the queue, and then executes the function
+	fadeIn() ->Fades in the selected elements
+	fadeOut() ->Fades out the selected elements
+	fadeTo() ->Fades in/out the selected elements to a given opacity
+	fadeToggle() ->Toggles between the fadeIn() and fadeOut() methods
+	finish()->Stops, removes and completes all queued animations for selected elements
+	hide() ->Hides the selected elements
+	queue() ->Shows the queued functions on the selected elements
+	show() ->Shows the selected elements
+	slideDown() ->Slides-down (shows) the selected elements
+	slideToggle() ->Toggles between the slideUp() and slideDown() methods
+	slideUp() ->Slides-up (hides) the selected elements
+	stop() ->Stops the currently running animation for the selected elements
+	toggle() ->Toggles between the hide() and show() methods
+
+# HTML/CSS METHODS
+
++ addClass()	Adds one or more class names to selected elements
++ after()	Inserts content after selected elements
++ append()	Inserts content at the end of selected elements
++ appendTo()	Inserts HTML elements at the end of selected elements
++ attr()	Sets or returns attributes/values of selected elements
++ before()	Inserts content before selected elements
++ clone()	Makes a copy of selected elements
++ css()	Sets or returns one or more style properties for selected elements
++ detach()	Removes selected elements (keeps data and events)
++ empty()	Removes all child nodes and content from selected elements
++ hasClass()	Checks if any of the selected elements have a specified class name
++ height()	Sets or returns the height of selected elements
++ html()	Sets or returns the content of selected elements
++ innerHeight()	Returns the height of an element (includes padding, but not border)
++ innerWidth()	Returns the width of an element (includes padding, but not border)
++ insertAfter()	Inserts HTML elements after selected elements
++ insertBefore()	Inserts HTML elements before selected elements
++ offset()	Sets or returns the offset coordinates for selected elements (relative to the document)
++ offsetParent()	Returns the first positioned parent element
++ outerHeight()	Returns the height of an element (includes padding and border)
++ outerWidth()	Returns the width of an element (includes padding and border)
++ position()	Returns the position (relative to the parent element) of an element
++ prepend()	Inserts content at the beginning of selected elements
++ prependTo()	Inserts HTML elements at the beginning of selected elements
++ prop()	Sets or returns properties/values of selected elements
++ remove()	Removes the selected elements (including data and events)
++ removeAttr()	Removes one or more attributes from selected elements
++ removeClass()	Removes one or more classes from selected elements
++ removeProp()	Removes a property set by the prop() method
++ replaceAll()	Replaces selected elements with new HTML elements
++ replaceWith()	Replaces selected elements with new content
++ scrollLeft()	Sets or returns the horizontal scrollbar position of selected elements
++ scrollTop()	Sets or returns the vertical scrollbar position of selected elements
++ text()	Sets or returns the text content of selected elements
++ toggleClass()	Toggles between adding/removing one or more classes from selected elements
++ unwrap()	Removes the parent element of the selected elements
++ val()	Sets or returns the value attribute of the selected elements (for form elements)
++ width()	Sets or returns the width of selected elements
++ wrap()	Wraps HTML element(s) around each selected element
++ wrapAll()	Wraps HTML element(s) around all selected elements
++ wrapInner()	Wraps HTML element(s) around the content of each selected element
+
+# TRAVERSING METHODS
+
++ add()	Adds elements to the set of matched elements
++ addBack()	Adds the previous set of elements to the current set
++ andSelf()	Deprecated in version 1.8. An alias for addBack()
++ children()	Returns all direct children of the selected element
++ closest()	Returns the first ancestor of the selected element
++ contents()	Returns all direct children of the selected element (including text and comment nodes)
++ each()	Executes a function for each matched element
++ end()	Ends the most recent filtering operation in the current chain, and return the set of matched elements to its previous state
++ eq()	Returns an element with a specific index number of the selected elements
++ filter()	Reduce the set of matched elements to those that match the selector or pass the function's test
++ find()	Returns descendant elements of the selected element
++ first()	Returns the first element of the selected elements
++ has()	Returns all elements that have one or more elements inside of them
++ is()	Checks the set of matched elements against a selector/element/jQuery object, and return true if at least one of these elements matches the given arguments
++ last()	Returns the last element of the selected elements
++ map()	Passes each element in the matched set through a function, producing a new jQuery object containing the return values
++ next()	Returns the next sibling element of the selected element
++ nextAll()	Returns all next sibling elements of the selected element
++ nextUntil()	Returns all next sibling elements between two given arguments
++ not()	Returns elements that do not match a certain criteria
++ offsetParent()	Returns the first positioned parent element
++ parent()	Returns the direct parent element of the selected element
++ parents()	Returns all ancestor elements of the selected element
++ parentsUntil()	Returns all ancestor elements between two given arguments
++ prev()	Returns the previous sibling element of the selected element
++ prevAll()	Returns all previous sibling elements of the selected element
++ prevUntil()	Returns all previous sibling elements between two given arguments
++ siblings()	Returns all sibling elements of the selected element
++ slice()	Reduces the set of matched elements to a subset specified by a range of indices
+
+# MISCELLANEOUS
+
++ data()	Attaches data to, or gets data from, selected elements
++ each()	Execute a function for each matched element
++ get()	Get the DOM elements matched by the selector
++ index()	Search for a given element from among the matched elements
++ $.noConflict()	Release jQuery's control of the $ variable
++ $.param()	Create a serialized representation of an array or object (can be used as URL query string for AJAX requests)
++ removeData()	Removes a previously-stored piece of data
++ size()	Removed in version 3.0. Use the length property instead
++ toArray()	Retrieve all the DOM elements contained in the jQuery set, as an array

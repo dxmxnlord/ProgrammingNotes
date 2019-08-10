@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+	var node=document.getElementById("rishi");
+    alert(node.innerHTML);
+  $("button").click(function(){
+    $("p:first").replaceWith(node.innerHTML);
+  });
+});
+</script>
+</head>
+<body>
+
+<p>This is a paragraph.</p>
+<p id="rishi">This is another paragraph.</p>
+
+<button>Replace the first p element with new text</button>
+
+</body>
+<script>
+
+</script>
+</html>

@@ -1,0 +1,312 @@
+html, body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: #BBB;
+  font-family: Helvetica, sans-serif;
+  padding-bottom: 100px;
+}
+
+input {
+  font-size: 14px;
+  font-family: Helvetica, sans-serif;
+}
+
+h2, h3 {
+  margin: 0 0 .75em 0;
+}
+
+/* FIRST EXAMPLE */
+
+.containernoflex {
+  max-width: 750px;
+  margin: 20px auto 0 auto;
+  padding: 30px;
+  background-color: #FFF;
+}
+
+.form-rownoflex {
+  padding: 10px 0;
+}
+
+.form-rownoflex label {
+  padding-right: 10px;
+}
+
+.form-rownoflex input {
+}
+
+.container {
+  max-width: 750px;
+  margin: 20px auto 0 auto;
+  padding: 30px;
+  background-color: #FFF;
+}
+
+.form-row {
+  padding: 10px 0;
+  /* the input container is set to flex */
+  display: flex;
+}
+
+.form-row label {
+  padding-right: 10px;
+}
+
+.form-row input {
+	/* flex 1 is the entire size of the container WHICH DOES NOT INCLUDE THE LABEL since there are no other children in the container */
+  flex: 1;
+}
+
+/* SECOND EXAMPLE */
+
+.column-layoutnoflex {
+  max-width: 1300px;
+  background-color: #FFF;
+  margin: 40px auto 0 auto;
+  line-height: 1.65;
+  padding: 20px 50px;
+}
+
+.main-columnnoflex {
+}
+
+.sidebar-onenoflex {
+}
+
+.sidebar-twonoflex {
+}
+
+.column-layout {
+  max-width: 1300px;
+  background-color: #FFF;
+  margin: 40px auto 0 auto;
+  line-height: 1.65;
+  padding: 20px 50px;
+  /* flex on the containing container. Having this alone will still arrange elements but the size will be determined by the size of the childs content */
+  display: flex;
+}
+
+.main-column {
+	/* 3 times the size and 2nd in place irrespective of the HTML. The ordering only works on the children in the container */
+  flex: 3;
+  order: 2;
+}
+
+.sidebar-one {
+  flex: 1;
+  /* first in order */
+  order: 1;
+}
+
+.sidebar-two {
+  flex: 1;
+  /* third in order */
+  order: 3;
+}
+
+/* THIRD EXAMPLE - ADD MARGINS */
+
+.call-outs-containernoflex {
+  max-width: 1400px;
+  margin: 40px auto 0 auto;
+}
+
+.call-outnoflex {
+  padding: 20px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+.call-outnoflex:nth-child(1) {background-color: #c0dbe2;}
+.call-outnoflex:nth-child(2) {background-color: #cdf1c3;}
+.call-outnoflex:nth-child(3) {background-color: #ccb9da;}
+
+
+
+.call-outs-containernomargin {
+  max-width: 1400px;
+  margin: 40px auto 0 auto;
+
+  /* 
+  display:flex by default makes equal height columns but you can make the height dependant to the content with 
+  align-content: 	flex-start; -- aligns tops
+					flex-end;	-- aligns bottoms
+					center; 	-- aligns centers
+					stretch 	-- make equal (default)
+  */
+
+  display: flex;
+  /*align-content: flex-start;*/
+}
+
+.call-outnomargin {
+  padding: 20px;
+  margin-bottom: 20px;
+  flex:1;
+  /*margin-right: 40px; -- creates margins but also creates a margin at the end of the last box */
+}
+
+/* This can be used with the margin-right to prevent the last box margin
+.call-outnomargin:last-child {
+	margin-right: 0;
+}
+*/
+
+.call-outnomargin:nth-child(1) {background-color: #c0dbe2;}
+.call-outnomargin:nth-child(2) {background-color: #cdf1c3;}
+.call-outnomargin:nth-child(3) {background-color: #ccb9da;}
+
+
+
+.call-outs-container {
+  max-width: 1400px;
+  margin: 40px auto 0 auto;
+  display: flex;
+  justify-content: space-between; /* The justify-content is used with the width or flex basis to align horizontally
+  justify-content: 	flex-start (default) -- align left; 
+  					flex-end -- align right
+  					center -- align centre with spaces to the left end and right end
+  					space-between -- distributes the extra space between */
+}
+
+.call-out {
+  padding: 20px;
+  box-sizing: border-box; /* recommended to use when you use both width and padding */
+  margin-bottom: 20px;
+  /* width:30% -- creates 10% space to the right of all elements and aligns them all to the left ;*/
+  flex-basis: 30%; /* fexbox way of specifying width */ 
+}
+
+.call-out:nth-child(1) {background-color: #c0dbe2;}
+.call-out:nth-child(2) {background-color: #cdf1c3;}
+.call-out:nth-child(3) {background-color: #ccb9da;}
+
+
+
+.call-outs-containermobilefriendly {
+  max-width: 1400px;
+  margin: 40px auto 0 auto;
+}
+
+.call-outmobilefriendly {
+  padding: 20px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+  flex-basis: 30%;
+}
+
+@media (min-width: 900px) {
+	/* Only flex if not in mobile format else stack */
+  .call-outs-containermobilefriendly {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.call-outmobilefriendly:nth-child(1) {background-color: #c0dbe2;}
+.call-outmobilefriendly:nth-child(2) {background-color: #cdf1c3;}
+.call-outmobilefriendly:nth-child(3) {background-color: #ccb9da;}
+
+/* MULTIPLE ROWS OF CONTENT */
+
+/* Like a photo gallery. So you would want the items to re arrange based on screen size. Usually the space between them shrinks as the size gets smaller and they stick together but you can make them rearrange into multiple rows keeping their size constant */
+
+.fixed-size-container {
+  max-width: 1400px;
+  margin: 40px auto 0 auto;
+  background-color: #FFF;
+  padding: 30px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap; /* by default it has no wrap which is what causes the stubbon behaviour */
+}
+
+.fixed-size {
+  width: 150px;
+  height: 100px;
+  background-color: #990b47;
+  color: #FFF;
+  line-height: 100px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+/* FIFTH EXAMPLE */
+
+/* center the content horizontally and vertically. text-align: center does the horizontal but the vertical is hard. This can be easily solved with flex*/
+
+.banner {
+  height: 400px;
+  max-width: 700px;
+  margin: 40px auto 40px auto;
+  background-color: #2a2a2a;
+  display: flex;
+}
+
+.center-me {
+  color: #FFF;
+  font-size: 50px;
+  margin: auto; /* flex auto handles the margin to center */
+}
+
+/* SIXTH EXAMPLE */
+
+.equal-height-containernoflex {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.firstnoflex {
+  background-color: #FFF;
+  padding: 20px;
+}
+
+.secondnoflex {
+  background-color: yellow;
+  flex-direction: column;
+}
+
+.second-anoflex {
+  background-color: #c0dbe2;
+}
+
+.second-bnoflex {
+  background-color: #cdf1c3;
+}
+
+/* To get the first text using a flex and A,B sharing a flex we use a flex display on the root container. Then for A,B use the flex box entirely and flex themselves, we nest the flex inside the outer flex. But to make them flex by height we use the flex-direction property */
+
+.equal-height-container {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+}
+
+.first {
+  background-color: #FFF;
+  padding: 20px;
+  flex: 1;
+}
+
+.second {
+  background-color: yellow;
+  flex: 1; /* take 2nd horizonal half */
+  display: flex; /* nest the flex to flex the elements inside since this is also a container but technically a sub-container */
+  flex-direction: column; /* default is flex by row */
+}
+
+.second-a {
+  background-color: #c0dbe2;
+  flex: 1; /* take equal vertical half */
+}
+
+.second-b {
+  background-color: #cdf1c3;
+  flex: 1; /* take equal vertical half */
+}

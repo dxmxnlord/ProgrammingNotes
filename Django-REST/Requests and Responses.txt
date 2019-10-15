@@ -1,0 +1,224 @@
++ REST framework introduces a Request object that extends the regular HttpRequest, and provides more flexible request parsing. The core functionality of the Request object is the request.data attribute, which is similar to request.POST, but more useful for working with Web APIs.
+
++ request.POST only handles form data. Only works for 'POST' method. request.data handles arbitrary data.  Works for 'POST', 'PUT' and 'PATCH' methods.
+
++ REST framework also introduces a Response object, which is a type of TemplateResponse that takes unrendered content and uses content negotiation to determine the correct content type to return to the client. [[return Response(data)]] renders to content type as requested by the client.
+
++ Using numeric HTTP status codes in your views doesn't always make for obvious reading, and it's easy to not notice if you get an error code wrong. REST framework provides more explicit identifiers for each status code, such as HTTP_400_BAD_REQUEST in the status module. It's a good idea to use these throughout rather than using numeric identifiers.
+
+# WRAPPING API VIEWS
+
++ REST framework provides two wrappers you can use to write API views.
+	++ The @api_view decorator for working with function based views.
+	++ The APIView class for working with class-based views	
+
++ These wrappers provide a few bits of functionality such as making sure you receive Request instances in your view, and adding context to Response objects so that content negotiation can be performed. The wrappers also provide behaviour such as returning 405 Method Not Allowed responses when appropriate, and handling any ParseError exception that occurs when accessing request.data with malformed input.
+
++ we're no longer explicitly tying our requests or responses to a given content type. request.data can handle incoming json requests, but it can also handle other formats. Similarly we're returning response objects with data, but allowing REST framework to render the response into the correct content type for us.
+
++ To take advantage of the fact that our responses are no longer hardwired to a single content type let's add support for format suffixes to our API endpoints. Using format suffixes gives us URLs that explicitly refer to a given format. Add a format=None to the views. Modify the urlpatterns by format_suffix_patterns(urlpatterns) in urls.py
+
+[[
+	// refactored views from the serializers notes
+	from rest_framework import status
+	from rest_framework.decorators import api_view
+	from rest_framework.response import Response
+	from snippets.models import Snippet
+	from snippets.serializers import SnippetSerializer
+
+
+	@api_view(['GET', 'POST'])
+	def snippet_list(request, format=None):
+	    """
+	    List all code snippets, or create a new snippet.
+	    """
+	    if request.method == 'GET':
+	        snippets = Snippet.objects.all()
+	        serializer = SnippetSerializer(snippets, many=True)
+	        return Response(serializer.data)
+
+	    elif request.method == 'POST':
+	        serializer = SnippetSerializer(data=request.data)
+	        if serializer.is_valid():
+	            serializer.save()
+	            return Response(serializer.data, status=status.HTTP_201_CREATED)
+	        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+	@api_view(['GET', 'PUT', 'DELETE'])
+	def snippet_detail(request, pk, format=None):
+	    """
+	    Retrieve, update or delete a code snippet.
+	    """
+	    try:
+	        snippet = Snippet.objects.get(pk=pk)
+	    except Snippet.DoesNotExist:
+	        return Response(status=status.HTTP_404_NOT_FOUND)
+
+	    if request.method == 'GET':
+	        serializer = SnippetSerializer(snippet)
+	        return Response(serializer.data)
+
+	    elif request.method == 'PUT':
+	        serializer = SnippetSerializer(snippet, data=request.data)
+	        if serializer.is_valid():
+	            serializer.save()
+	            return Response(serializer.data)
+	        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+	    elif request.method == 'DELETE':
+	        snippet.delete()
+	        return Response(status=status.HTTP_204_NO_CONTENT)
+
+	    // urls.py
+	    from django.urls import path
+	    from rest_framework.urlpatterns import format_suffix_patterns
+	    from snippets import views
+
+	    urlpatterns = [
+	        path('snippets/', views.snippet_list),
+	        path('snippets/<int:pk>', views.snippet_detail),
+	    ]
+
+	    urlpatterns = format_suffix_patterns(urlpatterns)
+]]
+
+# CONTROLLING THE FORMAT OF THE RESPONSE
+
++ We can control the format of the response that we get back, either by using the Accept header or by appending a format suffix
+
+[[{
+	http http://127.0.0.1:8000/snippets/ Accept:application/json  # Request JSON
+	http http://127.0.0.1:8000/snippets/ Accept:text/html         # Request HTML
+
+	http http://127.0.0.1:8000/snippets.json  # JSON suffix
+	http http://127.0.0.1:8000/snippets.api   # Browsable API suffix
+}]]
+
++ Similarly, we can control the format of the request that we send, using the Content-Type header.
+
+[[{
+	# POST using form data
+	http --form POST http://127.0.0.1:8000/snippets/ code="print(123)"
+
+	{
+	  "id": 3,
+	  "title": "",
+	  "code": "print(123)",
+	  "linenos": false,
+	  "language": "python",
+	  "style": "friendly"
+	}
+
+	# POST using JSON
+	http --json POST http://127.0.0.1:8000/snippets/ code="print(456)"
+
+	{
+	    "id": 4,
+	    "title": "",
+	    "code": "print(456)",
+	    "linenos": false,
+	    "language": "python",
+	    "style": "friendly"
+	}
+}]]
+
+# REQUESTS
+
+## REQUEST PARSING
+
++ REST framework's Request class extends the standard HttpRequest, adding support for REST framework's flexible request parsing and request authentication.
+
++ REST framework's Request objects provide flexible request parsing that allows you to treat requests with JSON data or other media types in the same way that you would normally deal with form data.
+
+1. '.data' :
+
+	++ request.data returns the parsed content of the request body. This is similar to the standard request.POST and request.FILES attributes except that:
+
+		+++ It includes all parsed content, including file and non-file inputs.
+		+++ It supports parsing the content of HTTP methods other than POST, meaning that you can access the content of PUT and PATCH requests.
+		+++ It supports REST framework's flexible request parsing, rather than just supporting form data. For example you can handle incoming JSON data in the same way that you handle incoming form data.
+
+2. '.query_params' :
+
+	++ request.query_params is a more correctly named synonym for request.GET.
+
+3. '.parsers' :
+	
+	++ The APIView class or @api_view decorator will ensure that this property is automatically set to a list of Parser instances, based on the parser_classes set on the view or based on the DEFAULT_PARSER_CLASSES setting. You wont need to access this a lot
+
+## AUTHENTICATION
+
++ REST framework provides flexible, per-request authentication, that gives you the ability to:
+	++ Use different authentication policies for different parts of your API.
+	++ Support the use of multiple authentication policies.
+	++ Provide both user and token information associated with the incoming request.
+
+1. '.user' :
+	++ request.user typically returns an instance of django.contrib.auth.models.User, although the behavior depends on the authentication policy being used. If the request is unauthenticated the default value of request.user is an instance of django.contrib.auth.models.AnonymousUser
+
+2. '.auth' :
+	++ request.auth returns any additional authentication context. The exact behavior of request.auth depends on the authentication policy being used, but it may typically be an instance of the token that the request was authenticated against. If the request is unauthenticated, or if no additional context is present, the default value of request.auth is None.
+
+3. '.authenticators' :
+	++ The APIView class or @api_view decorator will ensure that this property is automatically set to a list of Authentication instances, based on the authentication_classes set on the view or based on the DEFAULT_AUTHENTICATORS setting. You will barely ever need to access this.
+
+# RESPONSES
+
++ REST framework supports HTTP content negotiation by providing a Response class which allows you to return content that can be rendered into multiple content types, depending on the client request.
+
++ Unless you want to heavily customize REST framework for some reason, you should always use an APIView class or @api_view function for views that return Response objects. Doing so ensures that the view can perform content negotiation and select the appropriate renderer for the response, before it is returned from the view.
+
+## CREATING RESPONSES
+
+### Response()
+
++ Unlike regular HttpResponse objects, you do not instantiate Response objects with rendered content. Instead you pass in unrendered data, which may consist of any Python primitives. The renderers used by the Response class cannot natively handle complex datatypes such as Django model instances, so you need to serialize the data into primitive datatypes before creating the Response object.
+
+< Response(data, status=None, template_name=None, headers=None, content_type=None) >
+
+	++ data: The serialized data for the response.
+	++ status: A status code for the response. Defaults to 200. See also status codes.
+	++ template_name: A template name to use if HTMLRenderer is selected.
+	++ headers: A dictionary of HTTP headers to use in the response.
+	++ content_type: The content type of the response. Typically, this will be set automatically by the renderer as determined by content negotiation, but there may be some cases where you need to specify the content type explicitly.
+
+#### ATTRIBUTES
+
+1. '.data' :
+	++ The unrendered, serialized data of the response.
+
+2. '.status_code' :
+	++ The rendered content of the response. The .render() method must have been called before .content can be accessed.
+
+3. '.content' :
+	++ The rendered content of the response. The .render() method must have been called before .content can be accessed.
+
+4. '.template_name' :
+	++ The template_name, if supplied. Only required if HTMLRenderer or some other custom template renderer is the accepted renderer for the response.
+
+5. '.accepted_renderer' :
+	++ The renderer instance that will be used to render the response. Set automatically by the APIView or @api_view immediately before the response is returned from the view.
+
+6. '.accepted_media_type' :
+	++ The media type that was selected by the content negotiation stage. Set automatically by the APIView or @api_view immediately before the response is returned from the view.
+
+7. '.renderer_context' :
+	++ A dictionary of additional context information that will be passed to the renderer's .render() method. Set automatically by the APIView or @api_view immediately before the response is returned from the view.
+
+#### STANDARD HTTPRESPONSE ATTRIBUTES
+
++ The Response class extends SimpleTemplateResponse, and all the usual attributes and methods are also available on the response. 
+
+[[
+	// set headers on the response in the standard way
+	response = Response()
+	response['Cache-Control'] = 'no-cache'
+]]
+
+### render()
+
+< .render() >
+
++ As with any other TemplateResponse, this method is called to render the serialized data of the response into the final response content. When .render() is called, the response content will be set to the result of calling the .render(data, accepted_media_type, renderer_context) method on the accepted_renderer instance.
+
++ You won't typically need to call .render() yourself, as it's handled by Django's standard response cycle.

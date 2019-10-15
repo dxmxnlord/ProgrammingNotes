@@ -1,0 +1,104 @@
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.element{
+	border: 1px solid blue;
+}
+
+#div1{
+	background-color: lightblue;
+	margin: 100px 0;
+}
+
+#ele1{
+
+	/* scale(): affects the size of the element. This also applies to the font-size, padding, height, and width of an element, too. It’s also a a shorthand function for the scaleX and scaleY functions.*/
+	/* The scale property takes 2 parameters the xscale and the yscale. Alernatively you can use the scaleX and scaleY property to individually set the scale with one parameter each. */
+	transform: scale(1,1); /* this overrides the width set earlier ! */
+}
+
+#div2{
+	background-color: pink;
+	margin: 100px 0;
+}
+
+#ele2{
+	/*The skewX and skewY transform functions tilt an element one way or the other. Remember: there is no shorthand property for skewing an element, so you’ll need to use both functions. */
+	transform: skewX(5deg);
+	transform: skewY(5deg);
+}
+
+#div3{
+	background-color: grey;
+	margin: 100px 0;
+}
+
+#ele3{
+	/*This rotates an element clockwise from its original position, whilst a negative value would rotate it in the opposite direction. We can also use the rotateX, rotateY and rotateZ functions*/
+	transform: rotate(180deg);
+	text-align: center;
+}
+
+#div4{
+	background-color: lightgreen;
+	margin: 50px 0;
+}
+
+#ele4{
+	/*This transform function moves an element sideways, or up and down.*/
+	/*One value will move the element to the right (negative values to the left). If a second value is provided, that second value will move it down (negative values up). Or, you can get specific with translateX translateY translateZ. You can use px em or anything else */
+	/*It’s also worth noting that translate will be hardware accelerated if you want to animate that property, unlike position: absolute.*/
+	transform: translate(50px,-100px);
+}
+
+/*The matrix transform function can be used to combine all transforms into one. It's a bit like transform shorthand, only I don't believe it's really intended to be written by hand. There are tools out there like The Matrix Resolutions, which can convert a group of transforms into a single matrix declaration. Perhaps in some situations this can reduce file size, although author-unfriendly micro optimizations like that are likely not worth your time.*/
+
+/* rotate(45deg) translate(24px, 25px) is equivalent to matrix(0.7071067811865475, 0.7071067811865476, -0.7071067811865476, 0.7071067811865475, -0.7071067811865497, 34.648232278140824)
+8/
+
+/* 3D TRANSFORMS */
+
+/*Most of the above properties have 3D versions of them.*/
+
+/*The third value in translate3d or the value in translateZ moves the element toward the viewer, negative values away.*/
+
+/*The third value in scale3d or the value in scaleZ affects the scaling along the z-axis (e.g. the imaginary line coming straight out of the screen).*/
+
+/*rotateX and rotateY will rotate an element in 3D space around those axises. rotate3d allows you to specify a point in 3D space in which to rotate the element around.*/
+
+#upper{
+/*	position: absolute;*/
+	z-index: 2;	
+	background-color: pink;
+	transform: translate(-20%,0);
+	margin-top: 30px;
+	width: 350px;
+	height: 400px;
+	border-radius: 5px;
+}
+
+#subtest{
+	z-index: 1;
+	position: absolute;
+	left: 50%;
+	transform: translate(-50%,0);
+	width: 30%;
+	height: 500px;
+	background-color: black;
+	border-radius: 5px;
+}
+
+#flexer{
+	display: flex;
+	justify-content: center;
+
+}
+
+#lorem{
+	margin-top: 10px;
+	font-size: 10px;
+	color: white;
+}

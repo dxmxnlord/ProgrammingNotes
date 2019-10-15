@@ -1,0 +1,265 @@
++ Axios is a promise based HTTP client for the browser and Node.js. Axios makes it easy to send asynchronous HTTP requests to REST endpoints and perform CRUD operations. It can be used in plain JavaScript or with a library such as Vue or React.
+
++ When we send a request to a server, it returns a response. The Axios response object consists of:
+
+	data - the payload returned from the server
+	status - the HTTP code returned from the server
+	statusText - the HTTP status message returned by the server
+	headers - headers sent by server
+	config - the original request configuration
+	request - the request object
+
+# AXIOS CONFIG DEFAULTS
+
++ You can specify config defaults that will be applied to every request.
+
+[[
+	axios.defaults.baseURL = 'https://api.example.com';
+	axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
+	axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+]]
+
+[[
+		// appends the base url to it
+		axios.get('/users/', 
+		  )
+		  .then(function (response) {
+		    console.log(response);
+		  })
+		  .catch(function (error) {
+		    console.log(error);
+		  })
+		  .then(function () {
+		    // always executed
+		  });
+]]
+
+# AXIOS GET REQUESTS
+
+## WITH CALLBACKS
+
+[[
+	// load the axios object to call
+	const axios = require('axios');
+
+	// send the request and get the response. pass the response to another function
+	axios.get('http://webcode.me').then(resp => {
+		// log the response's data
+	    console.log(resp.data);
+	});
+
+	//output
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+	    <meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+	    <title>My html page</title>
+	</head>
+	<body>
+
+	    <p>
+	        Today is a beautiful day. We go swimming and fishing.
+	    </p>
+	....
+]]
+
+## WITH PARAMS
+
+[[
+	axios.get('/user', {
+	    params: {
+	      ID: 12345
+	    }
+	    // becomes "/user?ID=12345"
+	  })
+	  .then(function (response) {
+	    console.log(response);
+	  })
+	  .catch(function (error) {
+	    console.log(error);
+	  })
+	  .then(function () {
+	    // always executed
+	  }); 
+]]
+
+## WITH ASYNC / AWAIT
+
+[[
+	const axios = require('axios');
+
+	async function makeGetRequest() {
+	  
+	  let res = await axios.get('http://webcode.me');
+
+	  let data = res.data;
+	  console.log(data);
+	}
+
+	makeGetRequest();`
+]]
+
++ with a try catch block
+
+[[
+	async function getUser() {
+	  try {
+	    const response = await axios.get('/user?ID=12345');
+	    console.log(response);
+	  } catch (error) {
+	    console.error(error);
+	  }
+	}
+]]
+
+# BASIC API
+
++ specify the details of the request in the configuration object. The get(), post(), or delete() methods are convenience methods for the basic axios API: axios(config) and axios(url, config).
+
+[[
+	const axios = require('axios');
+
+	async function makeRequest() {
+
+	    const config = {
+	        method: 'get',
+	        url: 'http://webcode.me'
+	    }
+
+	    let res = await axios(config)
+
+	    console.log(res.status);
+	}
+
+	makeRequest();
+]]
+
+# EXAMPLE : GETTING GITHUB INFORMATION
+
+[[
+	const axios = require('axios');
+
+	async function getNumberOfFollowers() {
+	  
+	  let res = await axios.get('https://api.github.com/users/janbodnar');
+	  
+	  let nOfFollowers = res.data.followers;
+	  let location = res.data.location;
+
+	  console.log(`# of followers: ${nOfFollowers}`)
+	  console.log(`Location: ${location}`)
+	}
+
+	getNumberOfFollowers();
+]]
+
+# EXAMPLE : GET IMAGE
+
+[[
+	const axios = require('axios');
+	const fs = require('fs');
+
+	var config = {
+	    responseType: 'stream'
+	};
+
+	let url = 'https://images.dog.ceo/breeds/setter-english/n02100735_4870.jpg';
+
+	async function getImage() {
+
+	    let resp = await axios.get(url, config);
+	    resp.data.pipe(fs.createWriteStream('image.jpg'));
+	}
+
+	getImage();
+]]
+
+# AXIOS POST REQUESTS
+
+[[
+	axios.post('url', {
+	    firstName: 'Fred',
+	    lastName: 'Flintstone'
+	  })
+	  .then(function (response) {
+	    console.log(response);
+	  })
+	  .catch(function (error) {
+	    console.log(error);
+	  });
+]]
+
+[[
+	const axios = require('axios');
+
+	async function makePostRequest() {
+
+	    let res = await axios.post('https://jsonplaceholder.typicode.com/posts');
+
+	    console.log(`Status code: ${res.status}`);
+	    console.log(`Status text: ${res.statusText}`);
+	    console.log(`Request method: ${res.request.method}`);
+	    console.log(`Path: ${res.request.path}`);
+
+	    console.log(`Date: ${res.headers.date}`);
+	    console.log(`Data: ${res.data}`);
+	}
+
+	makePostRequest();
+]]
+
+[[
+	const axios = require('axios');
+
+	async function makePostRequest() {
+
+	    params = {
+	        id: 6,
+	        first_name: 'Fred',
+	        last_name: 'Blair',
+	        email: 'freddyb34@gmail.com'
+	      }
+
+	    let res = await axios.post('http://localhost:3000/users/', params);
+
+	    console.log(res.data);
+	}
+
+	makePostRequest();
+]]
+
+# AXIOS MULTIPLE REQUESTS
+
+[[
+	function getUserAccount(id) {
+	  return axios.get('/user/'+id);
+	}
+
+	function getUserPermissions(id) {
+	  return axios.get('/user/'+id+'/permissions');
+	}
+
+	axios.all([getUserAccount(), getUserPermissions()])
+	  .then(axios.spread(function (acct, perms) {
+	    // Both requests are now complete
+	  }));
+]]
+
+[[
+	const axios = require('axios');
+
+	async function makeRequests() {
+
+	    let [u1, u2] = await Promise.all([
+	        axios.get('https://api.github.com/users/janbodnar'),
+	        axios.get('https://api.github.com/users/symfony')
+	    ]);
+
+	    console.log(`Jan Bodnar: ${u1.data.created_at}`);
+	    console.log(`Symfony: ${u2.data.created_at}`);
+	}
+
+	makeRequests();
+]]

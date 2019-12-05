@@ -1,0 +1,122 @@
+# ASSOCIATED PROPERTIES
+
+1. app : 
+	
+	+ This property holds a reference to the instance of the Express application that is using the middleware.
+
+2. baseUrl :
+
+	+ The URL path on which a router instance was mounted.
+
+	[[
+		const greet = express.Router()
+
+		greet.get('/jp', function (req, res) {
+		  console.log(req.baseUrl) // /greet
+		  res.send('Konichiwa!')
+		})
+
+		app.use('/greet', greet) // load the router on '/greet'
+	]]
+
+3. body : 
+
+	+ Contains key-value pairs of data submitted in the request body. By default, it is undefined, and is populated when you use body-parsing middleware such as body-parser and multer.
+
+	[[
+		const app = require('express')()
+		const bodyParser = require('body-parser')
+		const multer = require('multer') // v1.0.5
+		const upload = multer() // for parsing multipart/form-data
+
+		app.use(bodyParser.json()) // for parsing application/json
+		app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+
+		app.post('/profile', upload.array(), function (req, res, next) {
+		  console.log(req.body)
+		  res.json(req.body)
+		})
+	]]
+
+4. cookies / fresh / stale / hostname / ip / method / path / protocol 
+
+5. params : 
+
+	+ This property is an object containing properties mapped to the named route “parameters”. For example, if you have the route /user/:name, then the “name” property is available as req.params.name. This object defaults to {}.
+
+	[[
+		// GET /user/tj
+		console.dir(req.params.name)
+		// => "tj"
+	]]
+
+	+ When you use a regular expression for the route definition, capture groups are provided in the array using req.params[n], where n is the nth capture group.
+
+	[[
+		// GET /file/javascripts/jquery.js
+		console.dir(req.params[0])
+		// => "javascripts/jquery.js"
+	]]
+
+	+ If you need to make changes to a key in req.params, use the app.param handler. Changes are applicable only to parameters already defined in the route path. Any changes made to the req.params object in a middleware or route handler will be reset.
+
+6. route :
+
+	+ Contains the currently-matched route, a string.
+
+	[[
+		app.get('/user/:id?', function userIdHandler (req, res) {
+		  console.log(req.route)
+		  res.send('GET')
+		})
+
+		// logged :
+		{ path: '/user/:id?',
+		  stack:
+		   [ { handle: [Function: userIdHandler],
+		       name: 'userIdHandler',
+		       params: undefined,
+		       path: undefined,
+		       keys: [],
+		       regexp: /^\/?$/i,
+		       method: 'get' } ],
+		  methods: { get: true } }
+	]]
+
+# ASSOCIATED METHODS
+
+1. get(field)
+
+	+ Returns the specified HTTP request header field (case-insensitive match). The Referrer and Referer fields are interchangeable.
+
+	+ Aliased as req.header(field).
+
+	[[
+		req.get('Content-Type')
+		// => "text/plain"
+
+		req.get('content-type')
+		// => "text/plain"
+
+		req.get('Something')
+		// => undefined
+	]]
+
+2. is(type)
+
+	+ Returns the matching content type if the incoming request’s “Content-Type” HTTP header field matches the MIME type specified by the type parameter. If the request has no body, returns null. Returns false otherwise.
+
+	[[
+		// With Content-Type: text/html; charset=utf-8
+		req.is('html') // => 'html'
+		req.is('text/html') // => 'text/html'
+		req.is('text/*') // => 'text/*'
+
+		// When Content-Type is application/json
+		req.is('json') // => 'json'
+		req.is('application/json') // => 'application/json'
+		req.is('application/*') // => 'application/*'
+
+		req.is('html')
+		// => false
+	]]

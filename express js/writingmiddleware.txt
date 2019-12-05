@@ -1,0 +1,70 @@
++ Middleware functions are functions that have access to the request object (req), the response object (res), and the next function in the application’s request-response cycle. The next function is a function in the Express router which, when invoked, executes the middleware succeeding the current middleware. If the current middleware function does not end the request-response cycle, it must call next() to pass control to the next middleware function. Otherwise, the request will be left hanging.
+
++ Middleware functions can perform the following tasks:
+
+	++ Execute any code.
+	++ Make changes to the request and the response objects.
+	++ End the request-response cycle.
+	++ Call the next middleware in the stack.
+
+app.<A>( <B>,< C - function(<a>,<b>,<c>){} )
+	A -> http method on which middleware applies
+	B -> path for which the middleware function applies
+	C -> the mw function
+		a -> request object passed to the middleware function
+		b -> response object passed to the middleware function
+		c -> callback to the mw function
+
++ To load the middleware function, call app.use(), specifying the middleware function. The order of middleware loading is important: middleware functions that are loaded first are also executed first.
+
+[[
+	var express = require('express')
+	var app = express()
+
+	var myLogger = function (req, res, next) {
+	  console.log('LOGGED')
+	  next()
+	}
+
+	app.use(myLogger)
+
+	app.get('/', function (req, res) {
+	  res.send('Hello World!')
+	})
+
+	app.listen(3000)
+
+	//  For example, the following code loads the myLogger middleware function before the route to the root path (/).
+	// If myLogger is loaded after the route to the root path, the request never reaches it and the app doesn’t print “LOGGED”, because the route handler of the root path terminates the request-response cycle.
+	// The middleware function myLogger simply prints a message, then passes on the request to the next middleware function in the stack by calling the next() function.
+]]
+
++ middleware functions can also modify the request/response objects
+
+[[
+	var express = require('express')
+	var app = express()
+
+	var requestTime = function (req, res, next) {
+	  req.requestTime = Date.now()
+	  next()
+	}
+
+	app.use(requestTime)
+
+	app.get('/', function (req, res) {
+	  var responseText = 'Hello World!<br>'
+	  responseText += '<small>Requested at: ' + req.requestTime + '</small>'
+	  res.send(responseText)
+	})
+
+	app.listen(3000)
+]]
+
++ the use() can specify the path at which to use the middleware function
+
+[[
+	app.use('/abcd', function (req, res, next) {
+	  next();
+	});
+]]

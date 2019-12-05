@@ -1,0 +1,137 @@
+# ASSOCIATED PROPERTIES
+
+1. app 
+
+	+ This property holds a reference to the instance of the Express application that is using the middleware. res.app is identical to the req.app property in the request object.
+
+2. headersSent
+
+	+ Boolean property that indicates if the app sent HTTP headers for the response.
+
+	[[
+		app.get('/', function (req, res) {
+		  console.log(res.headersSent) // false
+		  res.send('OK')
+		  console.log(res.headersSent) // true
+		})
+	]]
+
+3. locals
+
+	+ An object that contains response local variables scoped to the request, and therefore available only to the view(s) rendered during that request / response cycle (if any). Otherwise, this property is identical to app.locals.
+
+	+ Once set, the value of app.locals properties persist throughout the life of the application, in contrast with res.locals properties that are valid only for the lifetime of the request.
+
+	+ This property is useful for exposing request-level information such as the request path name, authenticated user, user settings, and so on.
+
+	[[
+		app.use(function (req, res, next) {
+		  res.locals.user = req.user
+		  res.locals.authenticated = !req.user.anonymous
+		  next()
+		})
+	]]
+
+# ASSOCIATED METHODS
+
+1. download(path, ...)
+
+	+ Transfers the file at path as an “attachment”. Typically, browsers will prompt the user for download
+
+	[[
+		res.download('/report-12345.pdf')
+		res.download('/report-12345.pdf', 'report.pdf')
+	]]
+
+2. end() 
+
+	+ Ends the response process. Use to quickly end the response without any data. If you need to respond with data, instead use methods such as res.send() and res.json().
+
+	[[
+		res.end()
+		res.status(404).end()
+	]]
+
+3. json([body])
+
+	+ Sends a JSON response. This method sends a response (with the correct content-type) that is the parameter converted to a JSON string using JSON.stringify().
+	+ The parameter can be any JSON type, including object, array, string, Boolean, number, or null, and you can also use it to convert other values to JSON.
+
+	[[
+		res.json(null)
+		res.json({ user: 'tobi' })
+		res.status(500).json({ error: 'message' })
+	]]
+
+4. render(view, ...)
+
+	+ Renders a view and sends the rendered HTML string to the client. 
+
+	[[
+		// send the rendered view to the client
+		res.render('index')
+
+		// if a callback is specified, the rendered HTML string has to be sent explicitly
+		res.render('index', function (err, html) {
+		  res.send(html)
+		})
+
+		// pass a local variable to the view
+		res.render('user', { name: 'Tobi' }, function (err, html) {
+		  // ...
+		})
+	]]
+
+5. send([body])
+	
+	+ Sends the HTTP response. The body parameter can be a Buffer object, a String, an object, or an Array. 
+
+	[[
+		res.send(Buffer.from('whoop'))
+		res.send({ some: 'json' })
+		res.send('<p>some html</p>')
+		res.status(404).send('Sorry, we cannot find that!')
+		res.status(500).send({ error: 'something blew up' })
+	]]
+
+6. sendFile : 
+
+	+ Transfers the file at the given path. Sets the Content-Type response HTTP header field based on the filename’s extension. Can be used to render html pages.
+
+	+ send HTML files to browser which then automatically interpreted by browser. All we need to do is in every route deliver appropriate HTML file.
+
+	[[
+		const express = require('express');
+		const app = express();
+		const path = require('path');
+		const router = express.Router();
+
+		router.get('/',function(req,res){
+		  res.sendFile(path.join(__dirname+'/index.html'));
+		  //__dirname : It will resolve to your project folder.
+		});
+
+		router.get('/about',function(req,res){
+		  res.sendFile(path.join(__dirname+'/about.html'));
+		});
+
+		router.get('/sitemap',function(req,res){
+		  res.sendFile(path.join(__dirname+'/sitemap.html'));
+		});
+
+		//add the router
+		app.use('/', router);
+		app.listen(process.env.port || 3000);
+
+		console.log('Running at Port 3000');
+	]]
+
+7. status(code) 
+
+	+ Sets the HTTP status for the response. It is a chainable alias of Node’s response.statusCode.
+
+	[[
+		res.status(403).end()
+		res.status(400).send('Bad Request')
+		res.status(404).sendFile('/absolute/path/to/404.png')
+	]]
